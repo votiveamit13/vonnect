@@ -34,11 +34,10 @@ export default function Header({
 
         {/* Welcome Card */}
         {showWelcomeCard && (
-          <div className=" rounded-2xl backdrop-blur-md py-4 flex items-center gap-4">
-            {/* Avatar */}
+          <div className=" rounded-2xl backdrop-blur-md mt-4 flex items-center gap-4">
             <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white flex items-center justify-center shrink-0">
               <Image
-                src="/assets/icon/user.svg"  // put your user icon here
+                src="/assets/icon/user.svg"
                 alt="User"
                 width={24}
                 height={24}
@@ -46,7 +45,6 @@ export default function Header({
               />
             </div>
 
-            {/* Text */}
             <div className="text-white">
               <p className="text-sm text-white/70">Welcome,</p>
               <p className="font-medium leading-tight">{name}</p>
