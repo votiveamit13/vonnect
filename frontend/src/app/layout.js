@@ -1,6 +1,7 @@
 import { Arimo } from "next/font/google";
 import "./globals.css";
 import Providers from "./providers";
+import { Toaster } from "react-hot-toast";
 
 const arimo = Arimo({
   subsets: ["latin"],
@@ -19,6 +20,7 @@ export default function RootLayout({ children }) {
       <body>
         <Providers>
           {children}
+          <Toaster position="bottom-right" />
         </Providers>
       </body>
     </html>

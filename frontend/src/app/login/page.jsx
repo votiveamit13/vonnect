@@ -1,6 +1,7 @@
 import LoginForm from "@/components/LoginForm";
 import Link from "next/link";
 import { FiArrowLeft } from "react-icons/fi";
+import { ROLE_TO_ID } from "@/lib/roles";
 
 const roleLabels = {
   owner: "Owner",
@@ -10,9 +11,11 @@ const roleLabels = {
 };
 
 export default async function LoginPage({ searchParams }) {
-  const params = await searchParams;   // ✅ REQUIRED
+  const params = await searchParams;
   const role = params?.role || "owner";
   const roleLabel = roleLabels[role] || "User";
+
+  const role_id = ROLE_TO_ID[role] || ROLE_TO_ID.owner;
 
   return (
     <main className="min-h-screen w-full bg-[#001F3F] flex items-center justify-center px-4 sm:px-6 relative">
@@ -32,7 +35,8 @@ export default async function LoginPage({ searchParams }) {
           {roleLabel} Login
         </p>
 
-        <LoginForm role={role} />
+        {/* pass role + role_id to client form */}
+        <LoginForm role={role} role_id={role_id} />
       </div>
     </main>
   );
