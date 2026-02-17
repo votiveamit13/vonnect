@@ -9,9 +9,9 @@ export const login = async (req, res) => {
 
 
 
-    const { username, password } = req.body;
+    const { username, password, role_id } = req.body;
 
-    const token = await loginUser(username, password);
+    const token = await loginUser(username, password,role_id);
 
     res.json({ token });
 
@@ -24,6 +24,7 @@ export const signup = async (req,res) => {
 
   try {
     const { value, error } = signupSchema.validate(req.body);
+
 
     if (error)
       return res.status(422).json({ message: error.details[0].message });

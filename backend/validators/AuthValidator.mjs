@@ -22,6 +22,9 @@ export const signupSchema = Joi.object({
 });
 
 export const loginSchema = Joi.object({
+  role_id: Joi.number()
+    .integer()
+    .valid(1,2,3,4),
   username: Joi.string().required(),
   password: Joi.string().required()
 });
