@@ -8,7 +8,7 @@ const sequelize = new Sequelize(process.env.DATABASE_URL, {
   logging: false,
   dialectOptions: process.env.DATABASE_URL.includes("localhost")
     ? {}
-    : { ssl: { require: true, rejectUnauthorized: false } }
+    : { ssl: false }
 });
 
 export default sequelize;

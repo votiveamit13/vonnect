@@ -16,10 +16,11 @@ const generateToken = (user) => {
   );
 };
 
-export const loginUser = async (username, password) => {
+export const loginUser = async (username, password,role_id) => {
 
   const user = await User.findOne({
   where: {
+    role_id: role_id,
     [Op.or]: [
       { email: username },    // 'identifier' is the input from your login form
       { username: username }
@@ -61,5 +62,17 @@ export const signupUser = async ({ name, username, phone, email, password, role_
     phone: phone
 });
 
-  return generateToken(user);
+// const link = `${process.env.FRONTEND_URL}/verify-email/${token}`;
+
+// await sendTemplateMail({
+//   to: email,
+//   subject: "Verify Your Email",
+//   template: "verifyEmail",
+//   context: {
+//     name,
+//     link
+//   }
+// });
+
+//   return generateToken(user);
 };
