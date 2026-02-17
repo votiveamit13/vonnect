@@ -4,10 +4,11 @@ import { useState } from "react";
 import { FiUser, FiLock } from "react-icons/fi";
 import Link from "next/link";
 import { useDispatch, useSelector } from "react-redux";
-import { loginThunk } from "@/store/slices/authSlice";
+import { loginThunk, getProfileThunk } from "@/store/slices/authSlice";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
-export default function LoginForm({ role }) {
+export default function LoginForm({ role, role_id }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
@@ -37,12 +38,24 @@ export default function LoginForm({ role }) {
   const handleLogin = async () => {
     if (!validate()) return;
 
-    const res = await dispatch(loginThunk({ username, password }));
+    const res = await dispatch(loginThunk({ username, password, role_id }));
 
     if (res.meta.requestStatus === "fulfilled") {
+      const token = res.payload.token;
+
+      localStorage.setItem("token", token);
       localStorage.setItem("role", role);
+
+      document.cookie = `token=${token}; path=/;`;
+      document.cookie = `role=${role}; path=/;`;
+
+      await dispatch(getProfileThunk());
+      toast.success("Login successful");
       router.push("/building-selection");
+    } else {
+      toast.error(res.payload || "Login failed");
     }
+
   };
 
   return (
