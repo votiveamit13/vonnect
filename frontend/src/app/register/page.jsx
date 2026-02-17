@@ -108,6 +108,26 @@ export default async function RegisterPage({ searchParams }) {
             />
           </div>
 
+          {/* Terms & Conditions */}
+          <div className="flex items-start gap-3 mb-6">
+            <input
+              id="terms"
+              type="checkbox"
+              className="mt-1 h-4 w-4 rounded border-[#CBD5E1] text-[#001F3F] focus:ring-[#001F3F]"
+            />
+            <label htmlFor="terms" className="text-sm text-[#4A5565] leading-relaxed">
+              I have read and agree to the{" "}
+              <Link href="/terms" className="text-[#001F3F] font-medium hover:underline">
+                Terms and Conditions
+              </Link>{" "}
+              and{" "}
+              <Link href="/user-agreement" className="text-[#001F3F] font-medium hover:underline">
+                User Agreement
+              </Link>.
+            </label>
+          </div>
+
+
           {/* Submit */}
           <button className="w-full h-[48px] sm:h-[52px] rounded-xl bg-[#001F3F] text-white font-medium hover:bg-[#003d7a] transition">
             Create Account

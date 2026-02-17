@@ -1,5 +1,6 @@
 import { Arimo } from "next/font/google";
 import "./globals.css";
+import Providers from "./providers";
 
 const arimo = Arimo({
   subsets: ["latin"],
@@ -16,7 +17,9 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className={arimo.variable}>
       <body>
-        {children}
+        <Providers>
+          {children}
+        </Providers>
       </body>
     </html>
   );
