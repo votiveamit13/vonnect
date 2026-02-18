@@ -50,6 +50,7 @@ export default function Header({ showWelcomeCard, avatarUrl, unit }) {
         </div>
 
         {showWelcomeCard && (
+          <Link href={`/owner/profile`} className="text-sm text-[#001F3F]">
           <div className="mt-2 sm:mt-4 rounded-2xl backdrop-blur-md px-4 sm:px-4 py-4 flex items-center gap-4 hover:bg-white/10">
             <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white flex items-center justify-center shrink-0 overflow-hidden">
               {avatarUrl ? (
@@ -71,6 +72,7 @@ export default function Header({ showWelcomeCard, avatarUrl, unit }) {
               <p className="text-[14px] text-[#FFFFFF]/80">{unit || ""}</p>
             </div>
           </div>
+          </Link>
         )}
       </div>
     </header>
