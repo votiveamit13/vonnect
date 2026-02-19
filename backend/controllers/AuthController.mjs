@@ -1,3 +1,4 @@
+import Role from "../models/Role.mjs";
 import { loginUser, signupUser } from "../services/AuthService.mjs";
 import { loginSchema, signupSchema } from "../validators/AuthValidator.mjs";
 
@@ -41,3 +42,13 @@ export const signup = async (req,res) => {
     res.status(400).json({ message: err.message });
   }
 };
+
+export const roles = async (req,res) => {
+
+  const roles = await Role.findAll();
+
+  res.json({
+    'status' : true,
+    'data': roles
+  })
+}
