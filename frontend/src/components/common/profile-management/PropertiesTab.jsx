@@ -1,4 +1,5 @@
-import { FiHome, FiTruck, FiBox } from "react-icons/fi";
+import { FiTruck, FiBox } from "react-icons/fi";
+import { LuCar } from "react-icons/lu";
 
 export default function PropertiesTab({ properties = [] }) {
   return (
@@ -6,43 +7,60 @@ export default function PropertiesTab({ properties = [] }) {
       {properties.map((unit, i) => (
         <div
           key={i}
-          className="bg-white rounded-[16px] shadow-[0_10px_20px_-10px_rgba(0,0,0,0.25)] overflow-hidden border"
+          className="bg-white rounded-[16px] shadow-[0_10px_20px_-10px_rgba(0,0,0,0.25)] overflow-hidden"
         >
           {/* Header */}
           <div className="bg-[#001F3F] text-white px-5 py-3 rounded-t-[16px]">
-            <p className="text-sm font-medium">Unit {unit.unitNumber}</p>
-            <p className="text-xs text-white/70">{unit.propertyName}</p>
+            <p className="text-[12px]">Unit {unit.unitNumber}</p>
+            <p className="text-[12px] text-white/70">{unit.propertyName}</p>
           </div>
 
           {/* Main Info */}
           <div className="p-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Info label="Unit Type" value={unit.unitType} />
-            <Info label="Unit Number" value={unit.unitNumber} />
-            <Info label="Square Meters" value={`${unit.squareMeters} m²`} />
-            <Info label="Coefficient (Total)" value={`${unit.coefficient}%`} />
+            <div>
+              <p className="text-[12px] text-[#6A7282]">Unit Type</p>
+              <p className="text-[14px] text-[#001F3F]">{unit.unitType}</p>
+            </div>
 
             <div>
-              <p className="text-xs text-[#6A7282] mb-1">Occupancy Status</p>
-              <span
-                className={`inline-block text-xs px-3 py-1 rounded-full ${
-                  unit.status === "Owner Occupied"
-                    ? "bg-blue-100 text-blue-700"
-                    : "bg-green-100 text-green-700"
-                }`}
-              >
-                {unit.status}
-              </span>
+              <p className="text-[12px] text-[#6A7282]">Unit Number</p>
+              <p className="text-[14px] text-[#001F3F]">{unit.unitNumber}</p>
+            </div>
+
+            <div>
+              <p className="text-[12px] text-[#6A7282]">Square Meters</p>
+              <p className="text-[14px] text-[#001F3F]">
+                {unit.squareMeters} m²
+              </p>
+            </div>
+
+            <div>
+              <p className="text-[12px] text-[#6A7282]">Coefficient (Total)</p>
+              <p className="text-[14px] text-[#001F3F]">
+                {unit.coefficient}%
+              </p>
             </div>
           </div>
-
+            <div className="flex justify-between w-full px-5 mb-4">
+                <p className="text-[14px] text-[#4A5565] mb-1">Occupancy Status</p>
+                <span
+                    className={`inline-block text-[12px] px-3 py-1 rounded-full ${
+                    unit.status === "Owner Occupied"
+                        ? "bg-[#DBEAFE] text-[#001F3F]"
+                        : "bg-[#DCFCE7] text-[#008236]"
+                    }`}
+                >
+                    {unit.status}
+                </span>
+            </div>
           {/* Actions */}
           <div className="px-5 pb-4 space-y-2">
-            <button className="w-full h-[40px] rounded-lg bg-[#001F3F] text-white text-sm hover:bg-[#003d7a] transition">
+            <button className="w-full h-[36px] rounded-[10px] bg-[#001F3F] text-white text-[14px] hover:opacity-90 transition">
               Manage Unit
             </button>
 
             {unit.showManageTenants && (
-              <button className="w-full h-[40px] rounded-lg border border-[#001F3F] text-[#001F3F] text-sm hover:bg-[#001F3F]/5 transition">
+              <button className="w-full h-[36px] rounded-[10px] bg-[#001F3F] text-white text-[14px] hover:opacity-90 transition">
                 Manage Tenants
               </button>
             )}
@@ -50,8 +68,8 @@ export default function PropertiesTab({ properties = [] }) {
 
           {/* Complementary Units */}
           {unit.complementaryUnits?.length > 0 && (
-            <div className="border-t bg-[#FAFAFA] px-5 py-4">
-              <p className="text-xs text-[#6A7282] mb-3">
+            <div className="border-t-2 border-[#E5E7EB] bg-[#F9FAFB] px-5 py-4">
+              <p className="text-[12px] text-[#364153] mb-3">
                 Complementary Units
               </p>
 
@@ -59,27 +77,52 @@ export default function PropertiesTab({ properties = [] }) {
                 {unit.complementaryUnits.map((c, idx) => (
                   <div
                     key={idx}
-                    className="bg-[#F9FAFB] rounded-xl p-4 border"
+                    className="rounded-[10px] shadow-sm"
                   >
-                    <div className="flex items-center gap-2 mb-2 text-[#001F3F]">
-                      {c.type === "Parking Space" && <FiTruck size={16} />}
+                    <div className="p-4 bg-[#F3F4F6] rounded-t-[10px] rounded-b-none flex items-center gap-2 mb-2 text-[14px] text-[#001F3F] border-b-2 border-[#E5E7EB]">
+                      {c.type === "Parking Space" && <LuCar size={16} />}
                       {c.type === "Storage Unit" && <FiBox size={16} />}
-                      <p className="text-sm font-medium">
+                      <p className="text-[14px] text-[#001F3F]">
                         {c.type} {c.unitNumber}
                       </p>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                      <Info label="Unit Type" value={c.type} />
-                      <Info label="Unit Number" value={c.unitNumber} />
-                      <Info label="Square Meters" value={`${c.squareMeters} m²`} />
-                      <Info label="Coefficient" value={`${c.coefficient}%`} />
+                    <div className="px-4 py-3 grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <p className="text-[12px] text-[#6A7282]">Unit Type</p>
+                        <p className="text-[12px] text-[#001F3F]">
+                          {c.type}
+                        </p>
+                      </div>
+
+                      <div>
+                        <p className="text-[12px] text-[#6A7282]">Unit Number</p>
+                        <p className="text-[12px] text-[#001F3F]">
+                          {c.unitNumber}
+                        </p>
+                      </div>
+
+                      <div>
+                        <p className="text-[12px] text-[#6A7282]">Square Meters</p>
+                        <p className="text-[12px] text-[#001F3F]">
+                          {c.squareMeters} m²
+                        </p>
+                      </div>
+
+                      <div>
+                        <p className="text-[12px] text-[#6A7282]">Coefficient</p>
+                        <p className="text-[12px] text-[#001F3F]">
+                          {c.coefficient}%
+                        </p>
+                      </div>
                     </div>
 
                     {c.showManageTenants && (
-                      <button className="mt-3 w-full h-[36px] rounded-lg border border-[#001F3F] text-[#001F3F] text-xs hover:bg-[#001F3F]/5 transition">
+                        <div className="px-4">
+                      <button className="mt-3 mb-3 w-full h-[36px] rounded-[10px] border border-[#001F3F] text-[#001F3F] text-[12px] hover:bg-[#001F3F] hover:text-white transition">
                         Manage Tenants
                       </button>
+                      </div>
                     )}
                   </div>
                 ))}
@@ -88,16 +131,6 @@ export default function PropertiesTab({ properties = [] }) {
           )}
         </div>
       ))}
-    </div>
-  );
-}
-
-/* Small reusable info block */
-function Info({ label, value }) {
-  return (
-    <div>
-      <p className="text-xs text-[#6A7282]">{label}</p>
-      <p className="text-sm font-medium text-[#001F3F]">{value}</p>
     </div>
   );
 }
