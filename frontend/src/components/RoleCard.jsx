@@ -15,7 +15,7 @@ export default function RoleCard({ href, icon: Icon, title, description, iconPro
         <h3 className="font-normal text-[18px] sm:text-[19px] md:text-[20px] text-[#001F3F]">
           {title}
         </h3>
-        <p className="text-[#BBAACC] text-[12px] sm:text-[14px]">
+        <p className="text-[#4A5565] text-[12px] sm:text-[14px]">
           {description}
         </p>
       </div>

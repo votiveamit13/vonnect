@@ -1,12 +1,9 @@
 import Link from "next/link";
 import {
   FiUser,
-  FiFileText,
-  FiCalendar,
   FiMail,
   FiPhone,
   FiAlertTriangle,
-  FiTruck,
   FiEye,
 } from "react-icons/fi";
 import { RiIdCardLine } from "react-icons/ri";
