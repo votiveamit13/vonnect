@@ -23,19 +23,18 @@ export default async function LoginPage({ searchParams }) {
         href="/"
         className="absolute top-5 left-4 sm:left-6 flex items-center gap-2 text-white text-[16px] hover:opacity-80"
       >
-        <FiArrowLeft size={18} />
+        <FiArrowLeft size={20} />
         Back
       </Link>
 
       <div className="w-full max-w-md sm:max-w-lg text-center">
-        <h1 className="text-white text-[28px] sm:text-[32px] md:text-[36px] font-semibold tracking-wide">
+        <h1 className="text-white text-[28px] sm:text-[32px] md:text-[36px] font-normal tracking-wide">
           VONNECT
         </h1>
-        <p className="text-white text-[14px] sm:text-[15px] md:text-[16px] mt-2 mb-8">
+        <p className="text-white/80 text-[14px] sm:text-[15px] md:text-[16px] mt-2 mb-8">
           {roleLabel} Login
         </p>
 
-        {/* pass role + role_id to client form */}
         <LoginForm role={role} role_id={role_id} />
       </div>
     </main>
