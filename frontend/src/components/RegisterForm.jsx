@@ -76,53 +76,53 @@ export default function RegisterForm({ role, role_id }) {
 
       {/* Full Name */}
       <label className="block text-[#364153] text-[16px] mb-2">Full Name</label>
-      <div className="group flex items-center gap-3 border border-[#CBD5E1] rounded-xl px-4 h-[52px] sm:h-[56px] mb-1 transition focus-within:border-[#001F3F] focus-within:ring-2 focus-within:ring-[#001F3F]">
-        <FiUser className="text-[#94A3B8] group-focus-within:text-[#001F3F]" size={18} />
-        <input type="text" placeholder="Enter your full name" className="w-full outline-none text-sm sm:text-base placeholder:text-[#0A0A0A]/50 bg-transparent" value={form.name} onChange={onChange("name")} />
+      <div className="group flex items-center gap-3 border border-[#D1D5DC] rounded-[10px] px-4 h-[52px] sm:h-[56px] mb-4 transition focus-within:border-[#001F3F] focus-within:ring-2 focus-within:ring-[#001F3F]">
+        <FiUser className="text-[#99A1AF]" size={20} />
+        <input type="text" placeholder="Enter your full name" className="w-full outline-none text-[16px] placeholder:text-[#0A0A0A]/50 bg-transparent" value={form.name} onChange={onChange("name")} />
       </div>
       {errors.name && <p className="text-red-500 text-xs mb-3">{errors.name}</p>}
 
       {/* Email */}
       <label className="block text-[#364153] text-[16px] mb-2">Email</label>
-      <div className="group flex items-center gap-3 border border-[#CBD5E1] rounded-xl px-4 h-[52px] sm:h-[56px] mb-1 transition focus-within:border-[#001F3F] focus-within:ring-2 focus-within:ring-[#001F3F]">
-        <FiMail className="text-[#94A3B8] group-focus-within:text-[#001F3F]" size={18} />
-        <input type="email" placeholder="Enter your email" className="w-full outline-none text-sm sm:text-base placeholder:text-[#0A0A0A]/50 bg-transparent" value={form.email} onChange={onChange("email")} />
+      <div className="group flex items-center gap-3 border border-[#D1D5DC] rounded-[10px] px-4 h-[52px] sm:h-[56px] mb-4 transition focus-within:border-[#001F3F] focus-within:ring-2 focus-within:ring-[#001F3F]">
+        <FiMail className="text-[#99A1AF]" size={20} />
+        <input type="email" placeholder="Enter your email" className="w-full outline-none text-[16px] placeholder:text-[#0A0A0A]/50 bg-transparent" value={form.email} onChange={onChange("email")} />
       </div>
       {errors.email && <p className="text-red-500 text-xs mb-3">{errors.email}</p>}
 
       {/* Phone */}
       <label className="block text-[#364153] text-[16px] mb-2">Phone</label>
-      <div className="group flex items-center gap-3 border border-[#CBD5E1] rounded-xl px-4 h-[52px] sm:h-[56px] mb-3 transition focus-within:border-[#001F3F] focus-within:ring-2 focus-within:ring-[#001F3F]">
-        <FiPhone className="text-[#94A3B8] group-focus-within:text-[#001F3F]" size={18} />
-        <input type="tel" placeholder="Enter your phone number" className="w-full outline-none text-sm sm:text-base placeholder:text-[#0A0A0A]/50 bg-transparent" value={form.phone} onChange={onChange("phone")} />
+      <div className="group flex items-center gap-3 border border-[#D1D5DC] rounded-[10px] px-4 h-[52px] sm:h-[56px] mb-4 transition focus-within:border-[#001F3F] focus-within:ring-2 focus-within:ring-[#001F3F]">
+        <FiPhone className="text-[#99A1AF]" size={20} />
+        <input type="tel" placeholder="Enter your phone number" className="w-full outline-none text-[16px] placeholder:text-[#0A0A0A]/50 bg-transparent" value={form.phone} onChange={onChange("phone")} />
       </div>
 
       {/* Username */}
       <label className="block text-[#364153] text-[16px] mb-2">Username</label>
-      <div className="group flex items-center gap-3 border border-[#CBD5E1] rounded-xl px-4 h-[52px] sm:h-[56px] mb-1 transition focus-within:border-[#001F3F] focus-within:ring-2 focus-within:ring-[#001F3F]">
-        <FiUser className="text-[#94A3B8] group-focus-within:text-[#001F3F]" size={18} />
-        <input type="text" placeholder="Choose a username" className="w-full outline-none text-sm sm:text-base placeholder:text-[#0A0A0A]/50 bg-transparent" value={form.username} onChange={onChange("username")} />
+      <div className="group flex items-center gap-3 border border-[#D1D5DC] rounded-[10px] px-4 h-[52px] sm:h-[56px] mb-4 transition focus-within:border-[#001F3F] focus-within:ring-2 focus-within:ring-[#001F3F]">
+        <FiUser className="text-[#99A1AF]" size={20} />
+        <input type="text" placeholder="Choose a username" className="w-full outline-none text-[16px] placeholder:text-[#0A0A0A]/50 bg-transparent" value={form.username} onChange={onChange("username")} />
       </div>
       {errors.username && <p className="text-red-500 text-xs mb-3">{errors.username}</p>}
 
       {/* Password */}
       <label className="block text-[#364153] text-[16px] mb-2">Password</label>
-      <div className="group flex items-center gap-3 border border-[#CBD5E1] rounded-xl px-4 h-[52px] sm:h-[56px] mb-1 transition focus-within:border-[#001F3F] focus-within:ring-2 focus-within:ring-[#001F3F]">
-        <FiLock className="text-[#94A3B8] group-focus-within:text-[#001F3F]" size={18} />
-        <input type="password" placeholder="Create a password" className="w-full outline-none text-sm sm:text-base placeholder:text-[#0A0A0A]/50 bg-transparent" value={form.password} onChange={onChange("password")} />
+      <div className="group flex items-center gap-3 border border-[#D1D5DC] rounded-[10px] px-4 h-[52px] sm:h-[56px] mb-4 transition focus-within:border-[#001F3F] focus-within:ring-2 focus-within:ring-[#001F3F]">
+        <FiLock className="text-[#99A1AF]" size={20} />
+        <input type="password" placeholder="Create a password" className="w-full outline-none text-[16px] placeholder:text-[#0A0A0A]/50 bg-transparent" value={form.password} onChange={onChange("password")} />
       </div>
       {errors.password && <p className="text-red-500 text-xs mb-3">{errors.password}</p>}
 
       {/* Confirm Password */}
       <label className="block text-[#364153] text-[16px] mb-2">Confirm Password</label>
-      <div className="group flex items-center gap-3 border border-[#CBD5E1] rounded-xl px-4 h-[52px] sm:h-[56px] mb-1 transition focus-within:border-[#001F3F] focus-within:ring-2 focus-within:ring-[#001F3F]">
-        <FiLock className="text-[#94A3B8] group-focus-within:text-[#001F3F]" size={18} />
-        <input type="password" placeholder="Confirm your password" className="w-full outline-none text-sm sm:text-base placeholder:text-[#0A0A0A]/50 bg-transparent" value={form.confirmPassword} onChange={onChange("confirmPassword")} />
+      <div className="group flex items-center gap-3 border border-[#D1D5DC] rounded-[10px] px-4 h-[52px] sm:h-[56px] mb-4 transition focus-within:border-[#001F3F] focus-within:ring-2 focus-within:ring-[#001F3F]">
+        <FiLock className="text-[#99A1AF]" size={20} />
+        <input type="password" placeholder="Confirm your password" className="w-full outline-none text-[16px] placeholder:text-[#0A0A0A]/50 bg-transparent" value={form.confirmPassword} onChange={onChange("confirmPassword")} />
       </div>
       {errors.confirmPassword && <p className="text-red-500 text-xs mb-3">{errors.confirmPassword}</p>}
 
       {/* Terms */}
-      <div className="flex items-start gap-3 mb-2">
+      <div className="flex items-start gap-3 mb-4">
         <input id="terms" type="checkbox" className="mt-1 h-4 w-4 rounded border-[#CBD5E1] text-[#001F3F] focus:ring-[#001F3F]" checked={form.terms} onChange={onChange("terms")} />
         <label htmlFor="terms" className="text-sm text-[#4A5565] leading-relaxed">
           I have read and agree to the{" "}
@@ -137,7 +137,7 @@ export default function RegisterForm({ role, role_id }) {
       <button
         onClick={handleSubmit}
         disabled={loading}
-        className="w-full h-[48px] sm:h-[52px] rounded-xl bg-[#001F3F] text-white font-medium hover:bg-[#003d7a] transition disabled:opacity-50"
+        className="w-full h-[48px] sm:h-[52px] rounded-[10px] bg-[#001F3F] text-white hover:bg-[#003d7a] transition disabled:opacity-50"
       >
         {loading ? "Creating account..." : "Create Account"}
       </button>

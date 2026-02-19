@@ -60,18 +60,17 @@ export default function LoginForm({ role, role_id }) {
 
   return (
     <div className="bg-white rounded-2xl shadow-lg px-5 sm:px-8 py-6 sm:py-8 text-left">
-      {/* Username */}
       <label className="block text-[#364153] text-[16px] mb-2">
         Username / Email
       </label>
       <div
-        className={`flex items-center gap-3 border border-[#CBD5E1] rounded-xl px-4 h-[52px] sm:h-[56px] mb-1 transition focus-within:border-[#001F3F] focus-within:ring-2 focus-within:ring-[#001F3F]`}
+        className={`flex items-center gap-3 border border-[#D1D5DC] rounded-[10px] px-4 h-[52px] sm:h-[56px] mb-1 transition focus-within:border-[#001F3F] focus-within:ring-2 focus-within:ring-[#001F3F]`}
       >
-        <FiUser className="text-[#94A3B8]" size={20} />
+        <FiUser className="text-[#99A1AF]" size={20} />
         <input
           type="text"
           placeholder="Enter your username or email"
-          className="w-full outline-none text-sm sm:text-base placeholder:text-[#0A0A0A]/50"
+          className="w-full outline-none text-[16px] placeholder:text-[#0A0A0A]/50"
           value={username}
           onChange={(e) => {
             setUsername(e.target.value);
@@ -84,18 +83,17 @@ export default function LoginForm({ role, role_id }) {
         <p className="text-red-500 text-xs mb-3">{fieldErrors.username}</p>
       )}
 
-      {/* Password */}
       <label className="block text-[#364153] text-[16px] mb-2 mt-6">
         Password
       </label>
       <div
-        className={`flex items-center gap-3 border border-[#CBD5E1] rounded-xl px-4 h-[52px] sm:h-[56px] mb-1 transition focus-within:border-[#001F3F] focus-within:ring-2 focus-within:ring-[#001F3F]`}
+        className={`flex items-center gap-3 border border-[#D1D5DC] rounded-[10px] px-4 h-[52px] sm:h-[56px] mb-1 transition focus-within:border-[#001F3F] focus-within:ring-2 focus-within:ring-[#001F3F]`}
       >
         <FiLock className="text-[#94A3B8]" size={20} />
         <input
           type="password"
           placeholder="Enter your password"
-          className="w-full outline-none text-sm sm:text-base placeholder:text-[#0A0A0A]/50"
+          className="w-full outline-none text-[16px] placeholder:text-[#0A0A0A]/50"
           value={password}
           onChange={(e) => {
             setPassword(e.target.value);
@@ -108,7 +106,6 @@ export default function LoginForm({ role, role_id }) {
         <p className="text-red-500 text-xs mb-4">{fieldErrors.password}</p>
       )}
 
-      {/* Server Error */}
       {serverError && (
         <p className="text-red-600 text-sm mb-4">{serverError}</p>
       )}
@@ -116,23 +113,23 @@ export default function LoginForm({ role, role_id }) {
       <button
         onClick={handleLogin}
         disabled={loading}
-        className="mt-6 w-full h-[48px] sm:h-[52px] rounded-xl bg-[#001F3F] text-white font-medium hover:bg-[#003d7a] transition disabled:opacity-50"
+        className="mt-6 w-full h-[48px] sm:h-[52px] rounded-[10px] bg-[#001F3F] text-white hover:bg-[#003d7a] transition disabled:opacity-50"
       >
         {loading ? "Logging in..." : "Login"}
       </button>
 
       <div className="text-center mt-5 space-y-4">
-        <Link href={`/forgot-password?role=${role}`} className="text-sm text-[#001F3F]">
+        <Link href={`/forgot-password?role=${role}`} className="text-[14px] text-[#001F3F]">
           <div className="mb-4">Forgot Password?</div>
         </Link>
 
         <hr className="text-[#E5E7EB]" />
 
-        <div className="text-sm text-[#4A5565]">
+        <div className="text-[16px] text-[#4A5565]">
           Do not have an account?{" "}
           <Link
             href={`/register?role=${role}`}
-            className="text-[#001F3F] font-medium hover:underline"
+            className="text-[#001F3F] hover:underline"
           >
             Register here
           </Link>

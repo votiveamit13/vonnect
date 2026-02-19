@@ -39,10 +39,10 @@ export default function Home() {
   return (
     <main className="min-h-screen w-full bg-[#001F3F] flex items-center justify-center px-4 sm:px-6">
       <div className="w-full max-w-lg text-center">
-        <h1 className="text-white text-[28px] sm:text-[32px] md:text-[36px] font-semibold tracking-wide">
+        <h1 className="text-white text-[28px] sm:text-[32px] md:text-[36px] font-normal tracking-wide">
           VONNECT
         </h1>
-        <p className="text-white text-[14px] sm:text-[15px] md:text-[16px] mt-2 mb-8 sm:mb-10">
+        <p className="text-white/80 text-[14px] sm:text-[15px] md:text-[16px] font-normal mt-2 mb-8 sm:mb-10">
           Select your user type to continue
         </p>
 
