@@ -217,46 +217,47 @@ export default async function ProfilePage({ searchParams }) {
         />
       )}
       {tab === "settings" && (
-  <SettingsTab
-    title="Settings"
-    items={[
-      {
-        key: "change-password",
-        label: "Change Password",
-        icon: <FiLock size={20} />,
-        type: "link",
-      },
-      {
-        key: "language",
-        label: "Preferred Language",
-        icon: <FiGlobe size={20} />,
-        type: "dropdown",
-        options: ["English", "Spanish", "French"],
-      },
-      {
-        key: "support",
-        label: "Support & Help",
-        icon: <FiHelpCircle size={20} />,
-        type: "link",
-      },
-    ]}
-  />
-)}
+        <SettingsTab
+          title="Settings"
+          items={[
+            {
+              key: "change-password",
+              label: "Change Password",
+              icon: <FiLock size={20} />,
+              type: "link",
+              href: "/owner/profile/change-password",
+            },
+            {
+              key: "language",
+              label: "Preferred Language",
+              icon: <FiGlobe size={20} />,
+              type: "dropdown",
+              options: ["English", "Spanish", "French"],
+            },
+            {
+              key: "support",
+              label: "Support & Help",
+              icon: <FiHelpCircle size={20} />,
+              type: "link",
+            },
+          ]}
+        />
+      )}
 
       {tab === "about" && (
-  <AboutTab
-    appName="VONNECT"
-    subtitle="Property Management Platform"
-    description="The all-in-one community app for smarter, simpler living."
-    longDescription="VONNECT is designed for today’s residential communities – connecting residents and management in one secure, intuitive platform. From smart access and intercom to facility bookings, payments, visitor management, and announcements, VONNECT streamlines everyday living for condos and private estates."
-    legalTitle="End User License Agreement"
-    legalText="By using VONNECT, you agree to our terms of service and privacy policy. This application is licensed, not sold, and your use is governed by specific terms and restrictions."
-    legalHref="/legal"
-    version="1.0.0"
-    copyright="© 2024 VONNECT. All rights reserved."
-    logoSrc="/assets/logo.png"
-  />
-)}
+        <AboutTab
+          appName="VONNECT"
+          subtitle="Property Management Platform"
+          description="The all-in-one community app for smarter, simpler living."
+          longDescription="VONNECT is designed for today’s residential communities – connecting residents and management in one secure, intuitive platform. From smart access and intercom to facility bookings, payments, visitor management, and announcements, VONNECT streamlines everyday living for condos and private estates."
+          legalTitle="End User License Agreement"
+          legalText="By using VONNECT, you agree to our terms of service and privacy policy. This application is licensed, not sold, and your use is governed by specific terms and restrictions."
+          legalHref="/legal"
+          version="1.0.0"
+          copyright="© 2024 VONNECT. All rights reserved."
+          logoSrc="/assets/logo.png"
+        />
+      )}
     </>
   );
 }

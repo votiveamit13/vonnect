@@ -13,3 +13,9 @@ api.interceptors.request.use((config) => {
 });
 
 export default api;
+
+export const changePasswordApi = (payload) => {
+  return api.post("/change-password", payload);
+};
+
+export const getBuildings = () => api.get("/building-list");
