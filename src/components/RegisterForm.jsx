@@ -25,11 +25,20 @@ export default function RegisterForm({ role, role_id }) {
 
   const [errors, setErrors] = useState({});
 
-  const onChange = (key) => (e) =>
-    setForm((p) => ({
-      ...p,
-      [key]: e.target.type === "checkbox" ? e.target.checked : e.target.value,
-    }));
+  const onChange = (key) => (e) => {
+    const value =
+      e.target.type === "checkbox" ? e.target.checked : e.target.value;
+
+    setForm((p) => ({ ...p, [key]: value }));
+
+    if (errors[key]) {
+      setErrors((p) => ({ ...p, [key]: "" }));
+    }
+
+    if (key === "password" || key === "confirmPassword") {
+      setErrors((p) => ({ ...p, confirmPassword: "" }));
+    }
+  };
 
   const validate = () => {
     const e = {};
@@ -37,7 +46,7 @@ export default function RegisterForm({ role, role_id }) {
     if (!form.email.trim()) e.email = "Email is required";
     if (!form.username.trim()) e.username = "Username is required";
     if (!form.password) e.password = "Password is required";
-    if (form.password.length < 6) e.password = "Min 6 characters";
+    else if (form.password.length < 6) e.password = "Min 6 characters";
     if (form.password !== form.confirmPassword)
       e.confirmPassword = "Passwords do not match";
     if (!form.terms) e.terms = "Accept terms to continue";
@@ -56,6 +65,7 @@ export default function RegisterForm({ role, role_id }) {
       username: form.username,
       password: form.password,
       role_id,
+      accepted_terms: form.terms,
     };
 
     const res = await dispatch(signupThunk(payload));
@@ -64,12 +74,14 @@ export default function RegisterForm({ role, role_id }) {
       localStorage.setItem("token", res.payload.token);
       localStorage.setItem("role", role);
       document.cookie = `token=${res.payload.token}; path=/;`;
-      toast.success("Registration Successful")
+
+      toast.success("Registration successful");
       router.push("/building-selection");
     } else {
-      toast.error(res.payload || "Login failed");
+      toast.error(res.payload || "Signup failed");
     }
   };
+
 
   return (
     <div className="bg-white rounded-2xl shadow-lg px-5 sm:px-8 py-6 sm:py-8 text-left mb-4">
