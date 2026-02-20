@@ -26,7 +26,7 @@ export default function FooterNav({ items = [], activePath = "" }) {
                     }
                   `}
                 >
-                  <Icon size={24} />
+                  <Icon size={20} />
                   <span className="text-[11px] sm:text-[12px]">{item.label}</span>
                 </Link>
               </li>

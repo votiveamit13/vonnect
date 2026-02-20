@@ -1,5 +1,7 @@
-import { FiTruck, FiBox } from "react-icons/fi";
+import { FiBox } from "react-icons/fi";
 import { LuCar } from "react-icons/lu";
+import Link from "next/link";
+
 
 export default function PropertiesTab({ properties = [] }) {
   return (
@@ -41,26 +43,30 @@ export default function PropertiesTab({ properties = [] }) {
               </p>
             </div>
           </div>
-            <div className="flex justify-between w-full px-5 mb-4">
-                <p className="text-[14px] text-[#4A5565] mb-1">Occupancy Status</p>
-                <span
-                    className={`inline-block text-[12px] px-3 py-1 rounded-full ${
-                    unit.status === "Owner Occupied"
-                        ? "bg-[#DBEAFE] text-[#001F3F]"
-                        : "bg-[#DCFCE7] text-[#008236]"
-                    }`}
-                >
-                    {unit.status}
-                </span>
-            </div>
+          <div className="flex justify-between w-full px-5 mb-4">
+            <p className="text-[14px] text-[#4A5565] mb-1">Occupancy Status</p>
+            <span
+              className={`inline-block text-[12px] px-3 py-1 rounded-full ${unit.status === "Owner Occupied"
+                  ? "bg-[#DBEAFE] text-[#001F3F]"
+                  : "bg-[#DCFCE7] text-[#008236]"
+                }`}
+            >
+              {unit.status}
+            </span>
+          </div>
           {/* Actions */}
           <div className="px-5 pb-4 space-y-2">
-            <button className="w-full h-[36px] rounded-[10px] bg-[#001F3F] text-white text-[14px] hover:opacity-90 transition">
+            <Link
+               href={`/owner/profile/${unit.unitNumber}/manage-unit`}
+              className="block w-full h-[36px] rounded-[10px] bg-[#001F3F] text-white text-[14px] 
+             hover:opacity-90 transition text-center leading-[36px]"
+            >
               Manage Unit
-            </button>
+            </Link>
+
 
             {unit.showManageTenants && (
-              <button className="w-full h-[36px] rounded-[10px] bg-[#001F3F] text-white text-[14px] hover:opacity-90 transition">
+              <button className="w-full h-[36px] rounded-[10px] border border-[#001F3F] text-[#001F3F] text-[12px] hover:bg-[#001F3F] hover:text-white transition">
                 Manage Tenants
               </button>
             )}
@@ -118,10 +124,10 @@ export default function PropertiesTab({ properties = [] }) {
                     </div>
 
                     {c.showManageTenants && (
-                        <div className="px-4">
-                      <button className="mt-3 mb-3 w-full h-[36px] rounded-[10px] border border-[#001F3F] text-[#001F3F] text-[12px] hover:bg-[#001F3F] hover:text-white transition">
-                        Manage Tenants
-                      </button>
+                      <div className="px-4">
+                        <button className="mt-3 mb-3 w-full h-[36px] rounded-[10px] border border-[#001F3F] text-[#001F3F] text-[12px] hover:bg-[#001F3F] hover:text-white transition">
+                          Manage Tenants
+                        </button>
                       </div>
                     )}
                   </div>

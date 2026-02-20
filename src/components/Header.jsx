@@ -35,7 +35,7 @@ export default function Header({ showWelcomeCard, avatarUrl, unit }) {
 
           <div className="flex items-center gap-4 sm:gap-6">
             <button className="relative text-white hover:opacity-80 transition">
-              <FiBell size={22} />
+              <FiBell size={24} />
               <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-red-500" />
             </button>
 
@@ -43,7 +43,7 @@ export default function Header({ showWelcomeCard, avatarUrl, unit }) {
               onClick={handleLogout}
               className="flex items-center gap-2 text-white text-[14px] hover:opacity-80 transition"
             >
-              <FiLogOut size={18} />
+              <FiLogOut size={20} />
               <span className="hidden sm:inline">Logout</span>
             </button>
           </div>
@@ -52,7 +52,7 @@ export default function Header({ showWelcomeCard, avatarUrl, unit }) {
         {showWelcomeCard && (
           <Link href={`/owner/profile`} className="text-sm text-[#001F3F]">
           <div className="mt-2 sm:mt-4 rounded-2xl backdrop-blur-md px-4 sm:px-4 py-4 flex items-center gap-4 hover:bg-white/10">
-            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white flex items-center justify-center shrink-0 overflow-hidden">
+            <div className="w-[44px] h-[44px] sm:w-[48px] sm:h-[48px] rounded-full bg-white flex items-center justify-center shrink-0 overflow-hidden">
               {avatarUrl ? (
                 <Image
                   src={avatarUrl}

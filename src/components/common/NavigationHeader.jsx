@@ -39,7 +39,7 @@ export default function NavigationHeader({
         <div className="rounded-xl px-4 sm:px-6 mt-2 flex items-center gap-4">
           <Link
             href={avatarHref || "#"}
-            className="relative w-12 h-12 sm:w-20 sm:h-20 rounded-full bg-white/10 border border-white/20 
+            className="relative w-[60px] h-[60px] sm:w-[64px] sm:h-[64px] rounded-full bg-white/10 border border-white/20 
                         flex items-center justify-center overflow-visible"
             >
             {profileData.image ? (
@@ -49,30 +49,30 @@ export default function NavigationHeader({
             )}
 
             <div
-                className="absolute -bottom-1 -right-2 w-10 h-10 rounded-full bg-white border border-[#001F3F]/20
+                className="absolute -bottom-1 -right-2 w-[24px] h-[24px] rounded-full bg-white border border-[#001F3F]/20
                         text-[#001F3F] flex items-center justify-center shadow-md"
             >
-                <LuCamera size={20} />
+                <LuCamera size={12} />
             </div>
             </Link>
 
 
           <div>
-            <h3 className="text-[18px] mb-2">{profileData.name}</h3>
+            <h3 className="text-[18px] mb-1">{profileData.name}</h3>
             <div className="flex gap-2 mt-1 flex-wrap">
               {profileData.role && (
-                <span className="bg-white/20 px-3 py-1 rounded-full text-[12PX]">
+                <span className="bg-white/20 px-3 py-1 rounded-full text-[12px]">
                   {profileData.role}
                 </span>
               )}
               {profileData.unit && (
-                <span className="bg-white/20 px-3 py-1 rounded-full text-[12PX]">
+                <span className="bg-white/20 px-3 py-1 rounded-full text-[12px]">
                   {profileData.unit}
                 </span>
               )}
             </div>
             {profileData.property && (
-              <p className="text-white/70 mt-1">
+              <p className="text-[12px] text-white/70 mt-1">
                 {profileData.property}
               </p>
             )}
@@ -86,7 +86,7 @@ export default function NavigationHeader({
             <Link
               key={tab}
               href={`${baseTabHref}?tab=${tab.toLowerCase()}`}
-              className={`px-4 py-2 rounded-lg text-sm transition ${
+              className={`px-4 py-2 rounded-lg text-[12px] transition ${
                 activeTab === tab
                   ? "bg-white text-[#001F3F]"
                   : "bg-white/10 text-white hover:bg-[#244A74]"
