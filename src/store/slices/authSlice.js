@@ -38,24 +38,11 @@ export const getProfileThunk = createAsyncThunk(
   }
 );
 
-export const getRolesThunk = createAsyncThunk(
-  "/roles",
-  async (_, { rejectWithValue }) => {
-    try {
-      const res = await api.get("/roles");
-      return res.data.data;
-    } catch (err) {
-      return rejectWithValue("Failed to load roles");
-    }
-  }
-);
-
 const authSlice = createSlice({
   name: "auth",
   initialState: {
     token: null,
     user: null,
-    roles: [], 
     loading: false,
     error: null,
   },
@@ -90,6 +77,7 @@ const authSlice = createSlice({
       .addCase(loginThunk.fulfilled, (state, action) => {
         state.loading = false;
         state.token = action.payload.token;
+        state.user = action.payload.user;
         localStorage.setItem("token", action.payload.token);
       })
       .addCase(loginThunk.rejected, (state, action) => {
@@ -106,9 +94,6 @@ const authSlice = createSlice({
       .addCase(getProfileThunk.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
-      })
-      .addCase(getRolesThunk.fulfilled, (state, action) => {
-        state.roles = action.payload;
       });
   },
 });
