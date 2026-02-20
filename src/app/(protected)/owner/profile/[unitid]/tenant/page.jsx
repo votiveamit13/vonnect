@@ -1,8 +1,8 @@
 import NavigationHeader from "@/components/common/NavigationHeader";
-import TenantPermissionsView from "@/components/common/profile-management/TenantPermissionsView";
 import { FiDollarSign, FiUserPlus, FiCalendar, FiTool } from "react-icons/fi";
 import { LuCar } from "react-icons/lu";
 import { FiBox } from "react-icons/fi";
+import TenantPermissionsView from "@/components/common/profile-management/TenantPermissionView";
 
 export default function ManageTenantPermissionsPage() {
   return (
