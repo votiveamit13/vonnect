@@ -1,11 +1,38 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
 import { FiArrowLeft, FiLock } from "react-icons/fi";
+import { useRouter, useSearchParams } from "next/navigation";
+import toast from "react-hot-toast";
+import { resetPasswordApi } from "@/lib/api";
 
-export default async function ResetPasswordPage({ searchParams }) {
-  const params = await searchParams;
-  const role = params?.role || "owner";
-  const token = params?.token || "";
+export default async function ResetPasswordPage() {
+  const params = useSearchParams();
+  const role = params.get("role") || "owner";
+  const token = params.get("token");
 
+  const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const router = useRouter();
+
+  const handleSubmit = async () => {
+    if (!password || !confirm) return toast.error("All fields required");
+    if (password !== confirm) return toast.error("Passwords do not match");
+
+    try {
+      setLoading(true);
+      await resetPasswordApi(token, password);
+      toast.success("Password reset successfully 🔐");
+      router.push(`/password-reset-success?role=${role}`);
+    } catch (e) {
+      toast.error(e.response?.data?.message || "Reset failed");
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <main className="min-h-screen w-full bg-[#001F3F] relative">
       {/* Top Bar */}
@@ -46,6 +73,7 @@ export default async function ResetPasswordPage({ searchParams }) {
               <input
                 type="password"
                 placeholder="Enter new password"
+                onChange={(e) => setPassword(e.target.value)}
                 className="w-full outline-none text-sm sm:text-base placeholder:text-[#0A0A0A]/50 bg-transparent"
               />
             </div>
@@ -60,22 +88,19 @@ export default async function ResetPasswordPage({ searchParams }) {
               <input
                 type="password"
                 placeholder="Confirm new password"
+                onChange={(e) => setConfirm(e.target.value)}
                 className="w-full outline-none text-sm sm:text-base placeholder:text-[#0A0A0A]/50 bg-transparent"
               />
             </div>
 
-            {/* Hidden token (for later form submit) */}
-            <input type="hidden" name="token" value={token} />
-
-            {/* Submit */}
-            <Link href={`/password-reset-success?role=${role}`} className="block">
               <button
+                onClick={handleSubmit}
+                disabled={loading}
                 className="w-full h-[48px] sm:h-[52px] rounded-xl bg-[#001F3F] text-white font-medium 
                            hover:bg-[#002040] active:bg-[#002040] transition"
               >
-                Update Password
+                {loading ? "Updating..." : "Update Password"}
               </button>
-            </Link>
           </div>
         </div>
       </div>
