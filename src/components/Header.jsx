@@ -26,7 +26,7 @@ export default function Header({ showWelcomeCard, avatarUrl, unit }) {
     toast.success("Logout Successful")
   };
   return (
-    <header className="w-full bg-[#001F3F]">
+    <header className="fixed top-0 left-0 w-full z-50 bg-[#001F3F]">
       <div className="mx-auto px-4 sm:px-6 py-4 sm:py-5">
         <div className="flex items-center justify-between">
           <h1 className="text-white text-[20px] sm:text-[24px] tracking-wide">
