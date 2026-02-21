@@ -2,7 +2,7 @@ import FooterNav from "@/components/Footer";
 import Header from "@/components/Header";
 import { FiUser, FiUsers, FiPhone, FiMessageCircle } from "react-icons/fi";
 
-export default function TenantHome() {
+export default function TenantPage() {
   const user = {
     name: "Tenant",
     unit: "Unit 405 - Ocean View Residences",
