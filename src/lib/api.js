@@ -19,3 +19,11 @@ export const changePasswordApi = (payload) => {
 };
 
 export const getBuildings = () => api.get("/building-list");
+
+export const forgotPasswordApi = (email) => {
+  return api.post("/forgot-password", { email });
+};
+
+export const resetPasswordApi = (token, password) => {
+  return api.post(`/reset-password/${token}`, { password });
+};

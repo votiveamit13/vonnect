@@ -2,11 +2,29 @@ import Link from "next/link";
 import { FiArrowLeft, FiMail } from "react-icons/fi";
 import Image from "next/image";
 
-export default async function ForgotPasswordPage({ searchParams }) {
-    const params = await searchParams;
-    const sent = params?.sent === "1";
-    const role = params?.role || "owner";
-    const email = params?.email || "test@yopmail.com";
+export default async function ForgotPasswordPage() {
+    const params = useSearchParams();
+  const role = params.get("role") || "owner";
+
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+
+  const handleSubmit = async () => {
+    if (!email) return toast.error("Email is required");
+
+    try {
+      setLoading(true);
+      await forgotPasswordApi(email);
+
+      toast.success("Reset link sent to your email ✉️");
+      router.push(`/forgot-password?role=${role}&sent=1&email=${email}`);
+    } catch (e) {
+      toast.error(e.response?.data?.message || "Failed to send reset link");
+    } finally {
+      setLoading(false);
+    }
+  };
 
     return (
         <main className="min-h-screen w-full bg-[#001F3F] relative">
@@ -50,20 +68,19 @@ export default async function ForgotPasswordPage({ searchParams }) {
                                     <input
                                         type="email"
                                         placeholder="Enter your email address"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
                                         className="w-full outline-none text-sm sm:text-base placeholder:text-[#0A0A0A]/50 bg-transparent"
                                     />
                                 </div>
 
-                                {/* Submit (mock success redirect) */}
-                                <Link
-                                    href={`/forgot-password?role=${role}&sent=1&email=test@yopmail.com`}
-                                    className="block"
-                                >
-                                    <button className="w-full h-[48px] sm:h-[52px] rounded-xl bg-[#001F3F] text-white font-medium 
-                                     hover:bg-[#003d7a] transition">
-                                        Send Reset Link
+                                    <button 
+                                        onClick={handleSubmit}
+                                        disabled={loading}
+                                        className="w-full h-[48px] sm:h-[52px] rounded-xl bg-[#001F3F] text-white font-medium 
+                                                    hover:bg-[#003d7a] transition">
+                                        {loading ? "Sending..." : "Send Reset Link"}
                                     </button>
-                                </Link>
                             </div>
                         </>
                     ) : (
