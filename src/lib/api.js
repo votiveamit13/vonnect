@@ -27,3 +27,14 @@ export const forgotPasswordApi = (email) => {
 export const resetPasswordApi = (token, password) => {
   return api.post(`/reset-password/${token}`, { password });
 };
+
+export const updateProfilePictureApi = (file) => {
+  const formData = new FormData();
+  formData.append("profile_picture", file);
+
+  return api.put("/update-profile", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+};

@@ -21,19 +21,14 @@ import { IoDocumentTextOutline } from "react-icons/io5";
 import { LuLaptopMinimalCheck } from "react-icons/lu";
 
 export default function OwnerPage() {
-  const user = {
-    name: "Owner",
-    unit: "Unit 405 - Ocean View Residences",
-    avatar: null,
-  };
+  // const user = {
+  //   name: "Owner",
+  //   unit: "Unit 405 - Ocean View Residences",
+  //   avatar: null,
+  // };
   return (
     <>
-      <Header
-        name={user.name}
-        unit={user.unit}
-        avatarUrl={user.avatar}
-        showWelcomeCard
-      />
+      <Header showWelcomeCard />
 
       <main className="pt-[180px] sm:pt-[200px] pb-[100px] p-6">
         <LatestUpdateCard

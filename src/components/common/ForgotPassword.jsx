@@ -15,19 +15,29 @@ export default function ForgotPassword() {
 
   const [email, setEmail] = useState(params.get("email") || "");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const router = useRouter();
 
   const handleSubmit = async () => {
-    if (!email) return toast.error("Email is required");
+    let hasError = false;
+
+    if (!email.trim()) {
+      setError("Email is required");
+      hasError = true;
+    }
+
+    if (hasError) return;
 
     try {
       setLoading(true);
+      setError("");
+
       await forgotPasswordApi(email);
 
       toast.success("Reset link sent to your email ✉️");
       router.push(`/forgot-password?role=${role}&sent=1&email=${email}`);
     } catch (e) {
-      toast.error(e.response?.data?.message || "Failed to send reset link");
+      setError(e.response?.data?.message || "Failed to send reset link");
     } finally {
       setLoading(false);
     }
@@ -48,7 +58,7 @@ export default function ForgotPassword() {
 
       {/* Centered Content */}
       <div className="min-h-screen flex items-center justify-center px-4 sm:px-6 pt-16 sm:pt-20">
-        <div className="w-full max-w-lg text-center">
+        <div className="w-full max-w-md text-center">
           {!sent ? (
             <>
               <h1 className="text-white text-[28px] sm:text-[32px] md:text-[36px] font-semibold tracking-wide">
@@ -66,18 +76,25 @@ export default function ForgotPassword() {
                 <label className="block text-[#364153] text-[16px] mb-2">
                   Email Address
                 </label>
-
-                <div className="group flex items-center gap-3 border border-[#CBD5E1] rounded-xl px-4 h-[52px] sm:h-[56px] mb-6 focus-within:border-[#001F3F] focus-within:ring-2 focus-within:ring-[#001F3F]">
+              <div className="mb-4">
+                <div className="group flex items-center gap-3 border border-[#CBD5E1] rounded-xl px-4 h-[52px] sm:h-[56px] mb-1 focus-within:border-[#001F3F] focus-within:ring-2 focus-within:ring-[#001F3F]">
                   <FiMail className="text-[#94A3B8]" size={18} />
                   <input
                     type="email"
                     placeholder="Enter your email address"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full outline-none text-sm sm:text-base bg-transparent"
+                     onChange={(e) => {
+                      setEmail(e.target.value);
+                      if (error) setError("");
+                    }}
+                    className="w-full outline-none text-[16px] sm:text-base text-black bg-transparent"
                   />
                 </div>
+                {error && (
+                  <p className="text-red-500 text-xs mb-4">{error}</p>
+                )}
 
+                </div>
                 <button
                   onClick={handleSubmit}
                   disabled={loading}

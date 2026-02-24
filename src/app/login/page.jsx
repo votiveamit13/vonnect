@@ -27,7 +27,7 @@ export default async function LoginPage({ searchParams }) {
         Back
       </Link>
 
-      <div className="w-full max-w-md sm:max-w-lg text-center">
+      <div className="w-full max-w-md sm:max-w-l text-center">
         <h1 className="text-white text-[28px] sm:text-[32px] md:text-[36px] font-normal tracking-wide">
           VONNECT
         </h1>

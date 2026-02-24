@@ -15,8 +15,7 @@ export function middleware(req) {
 
   if (!isProtected) return NextResponse.next();
 
-  // Not logged in
-  if (!token) {
+  if (!token || token === "undefined") {
     return NextResponse.redirect(new URL("/", req.url));
   }
 

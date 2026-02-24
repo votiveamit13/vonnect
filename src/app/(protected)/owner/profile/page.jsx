@@ -1,3 +1,5 @@
+"use client";
+import { useSelector } from "react-redux";
 import NavigationHeader from "@/components/common/NavigationHeader";
 import DocumentsTab from "@/components/common/profile-management/DocumentsTab";
 import NotificationTab from "@/components/common/profile-management/NotificationTab";
@@ -7,11 +9,25 @@ import { FiDollarSign, FiCalendar, FiUsers, FiTool, FiMessageSquare, FiBell, FiL
 import { CiCalendar } from "react-icons/ci";
 import SettingsTab from "@/components/common/profile-management/SettingsTab";
 import AboutTab from "@/components/common/profile-management/AboutTab";
+import { useSearchParams } from "next/navigation";
+import { selectRoleName, selectBuildingName } from "@/store/selectors";
 
-export default async function ProfilePage({ searchParams }) {
-  const params = await searchParams;
-  const tab = params?.tab || "profile";
-  const view = params?.view || null;
+export default function ProfilePage() {
+  // const params = await searchParams;
+  const user = useSelector((s) => s.auth.user);
+ const searchParams = useSearchParams();
+  const tab = searchParams.get("tab") || "profile";
+  const UPLOAD_URL=process.env.NEXT_PUBLIC_UPLOAD_URL;
+  const roleName = useSelector((s) => selectRoleName(s, user?.role_id));
+  const buildingName = useSelector((s) => selectBuildingName(s, user?.details?.building_id)); 
+
+  const avatarUrl = user?.details?.profile_picture
+  ? `${UPLOAD_URL}${user.details.profile_picture}`
+  : null;
+
+  // const view = params?.view || null;
+
+  if (!user) return null;
 
   return (
     <>
@@ -21,12 +37,19 @@ export default async function ProfilePage({ searchParams }) {
         title="My Profile"
         showProfile
         avatarHref="/owner/profile/upload-photo"
+        // profileData={{
+        //   name: "Carlos Rodriguez",
+        //   role: "Owner",
+        //   unit: "Tower A - Unit 405",
+        //   property: "Ocean View Residences",
+        //   image: "",
+        // }}
         profileData={{
-          name: "Carlos Rodriguez",
-          role: "Owner",
-          unit: "Tower A - Unit 405",
-          property: "Ocean View Residences",
-          image: "",
+          name: user.name,
+          role: roleName,
+          unit: buildingName,
+          property: `${user.details.unit_id}`,
+          image: avatarUrl,
         }}
         tabs={["Profile", "Properties", "Documents", "Notifications", "Settings", "About"]}
         activeTab={tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -37,28 +60,15 @@ export default async function ProfilePage({ searchParams }) {
         <ProfileTab
           viewDocumentHref="/owner/profile/documents/driver-license"
           data={{
-            documentType: "DNI",
-            documentNumber: "35.123.456",
-            dob: "Mar 15, 1988",
-            email: "carlos.rodriguez@example.com",
-            phone: "+54 11 4567-8901",
-            emergency: "+54 11 9876-5432",
-            licenseNumber: "B-35123456-8",
-            licenseExpiry: "Mar 15, 2026",
-            vehicles: [
-              {
-                name: "Toyota Camry 2022",
-                plate: "ABC-123",
-                insurance: "Seguros Rivadavia",
-                expires: "Jun 30, 2025",
-              },
-              {
-                name: "Honda CR-V 2021",
-                plate: "XYZ-789",
-                insurance: "La Caja Seguros",
-                expires: "Aug 15, 2025",
-              },
-            ],
+            documentType: user.details?.document_type || "--",
+            documentNumber: user.details?.document_number || "--",
+            dob: user.details?.date_of_birth || "--",
+            email: user.email,
+            phone: user.details?.phone || "--",
+            emergency: user.details?.emergency_number || "--",
+            licenseNumber: user.details?.driver_license_number || "--",
+            licenseExpiry: user.details?.driver_license_expiry || "--",
+            vehicles: user.vehicles || [],
           }}
         />
       )}

@@ -76,9 +76,10 @@ const authSlice = createSlice({
       })
       .addCase(loginThunk.fulfilled, (state, action) => {
         state.loading = false;
-        state.token = action.payload.token;
-        state.user = action.payload.user;
-        localStorage.setItem("token", action.payload.token);
+        state.token = action.payload.data.token;
+        state.user = action.payload.data.user;
+
+        localStorage.setItem("token", action.payload.data.token);
       })
       .addCase(loginThunk.rejected, (state, action) => {
         state.loading = false;
@@ -89,7 +90,7 @@ const authSlice = createSlice({
       })
       .addCase(getProfileThunk.fulfilled, (state, action) => {
         state.loading = false;
-        state.user = action.payload;
+        state.user = action.payload.data;
       })
       .addCase(getProfileThunk.rejected, (state, action) => {
         state.loading = false;
