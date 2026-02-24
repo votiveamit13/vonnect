@@ -7,12 +7,16 @@ import Image from "next/image";
 import { FiBell, FiLogOut, FiUser } from "react-icons/fi";
 import { useEffect } from "react";
 import toast from "react-hot-toast";
+import { selectRoleName, selectBuildingName } from "@/store/selectors";
 
-export default function Header({ showWelcomeCard, avatarUrl, unit }) {
+export default function Header({ showWelcomeCard }) {
   const user = useSelector((s) => s.auth.user);
   const token = useSelector((s) => s.auth.token);
   const dispatch = useDispatch();
   const router = useRouter();
+  const UPLOAD_URL = process.env.NEXT_PUBLIC_UPLOAD_URL;
+  const roleName = useSelector((s) => selectRoleName(s, user?.role_id));
+  const buildingName = useSelector((s) => selectBuildingName(s, user?.details?.building_id));
 
   useEffect(() => {
     if (!user && token) {
@@ -20,10 +24,14 @@ export default function Header({ showWelcomeCard, avatarUrl, unit }) {
     }
   }, [user, token, dispatch]);
 
+  const avatarUrl = user?.details?.profile_picture
+    ? `${UPLOAD_URL}${user.details.profile_picture}`
+    : null;
+
   const handleLogout = () => {
     dispatch(logout());
     router.replace("/");
-    toast.success("Logout Successful")
+    toast.success("Logout Successful");
   };
   return (
     <header className="fixed top-0 left-0 w-full z-50 bg-[#001F3F]">
@@ -51,27 +59,29 @@ export default function Header({ showWelcomeCard, avatarUrl, unit }) {
 
         {showWelcomeCard && (
           <Link href={`/owner/profile`} className="text-sm text-[#001F3F]">
-          <div className="mt-2 sm:mt-4 rounded-2xl backdrop-blur-md px-4 sm:px-4 py-4 flex items-center gap-4 hover:bg-white/10">
-            <div className="w-[44px] h-[44px] sm:w-[48px] sm:h-[48px] rounded-full bg-white flex items-center justify-center shrink-0 overflow-hidden">
-              {avatarUrl ? (
-                <Image
-                  src={avatarUrl}
-                  alt={name}
-                  width={56}
-                  height={56}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <FiUser className="text-[#001F3F]" size={24} />
-              )}
-            </div>
+            <div className="mt-2 sm:mt-4 rounded-2xl backdrop-blur-md px-4 sm:px-4 py-4 flex items-center gap-4 hover:bg-white/10">
+              <div className="w-[44px] h-[44px] sm:w-[48px] sm:h-[48px] rounded-full bg-white flex items-center justify-center shrink-0 overflow-hidden">
+                {avatarUrl ? (
+                  <Image
+                    src={avatarUrl}
+                    alt={user?.name || "User"}
+                    width={56}
+                    height={56}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <FiUser className="text-[#001F3F]" size={24} />
+                )}
+              </div>
 
-            <div className="text-white">
-              <p className="text-[14px] text-[#FFFFFF]/70">Welcome,</p>
-              <p className="font-[16px] text-[#FFFFFF]"> {user?.name || "..."}</p>
-              <p className="text-[14px] text-[#FFFFFF]/80">{unit || ""}</p>
+              <div className="text-white">
+                <p className="text-[14px] text-white/70">Welcome,</p>
+                <p className="font-medium">{user?.name || "..."}</p>
+                <p className="text-[14px] text-white/80">
+                  {user?.details?.unit_id || "..."} - {buildingName || "..."}
+                </p>
+              </div>
             </div>
-          </div>
           </Link>
         )}
       </div>

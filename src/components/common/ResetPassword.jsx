@@ -2,9 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { FiArrowLeft, FiLock } from "react-icons/fi";
+import { FiArrowLeft, FiLock, FiEye, FiEyeOff } from "react-icons/fi";
 import { useRouter, useSearchParams } from "next/navigation";
-import toast from "react-hot-toast";
 import { resetPasswordApi } from "@/lib/api";
 
 export default function ResetPassword() {
@@ -14,25 +13,44 @@ export default function ResetPassword() {
 
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const [errors, setErrors] = useState({
+    password: "",
+    confirm: "",
+    server: "",
+  });
 
   const router = useRouter();
 
   const handleSubmit = async () => {
-    if (!password || !confirm) return toast.error("All fields required");
-    if (password !== confirm) return toast.error("Passwords do not match");
+    const e = { password: "", confirm: "", server: "" };
+
+    if (!password.trim()) e.password = "Password is required";
+    if (!confirm.trim()) e.confirm = "Confirm password is required";
+    if (password && confirm && password !== confirm)
+      e.confirm = "Passwords do not match";
+
+    setErrors(e);
+
+    if (e.password || e.confirm) return;
 
     try {
       setLoading(true);
       await resetPasswordApi(token, password);
-      toast.success("Password reset successfully 🔐");
       router.push(`/password-reset-success?role=${role}`);
-    } catch (e) {
-      toast.error(e.response?.data?.message || "Reset failed");
+    } catch (err) {
+      setErrors((p) => ({
+        ...p,
+        server: err.response?.data?.message || "Reset failed",
+      }));
     } finally {
       setLoading(false);
     }
   };
+
 
   return (
     <main className="min-h-screen w-full bg-[#001F3F] relative">
@@ -44,7 +62,7 @@ export default function ResetPassword() {
       </div>
 
       <div className="min-h-screen flex items-center justify-center px-4 sm:px-6 pt-16 sm:pt-20">
-        <div className="w-full max-w-lg text-center">
+        <div className="w-full max-w-md text-center">
           <h1 className="text-white text-[28px] sm:text-[32px] md:text-[36px] font-semibold tracking-wide">
             VONNECT
           </h1>
@@ -54,27 +72,53 @@ export default function ResetPassword() {
           </p>
 
           <div className="bg-white rounded-2xl shadow-lg px-5 sm:px-8 py-6 sm:py-8 text-left">
+            <div className="mb-4">
             <label className="block text-[#364153] mb-2">New Password</label>
-            <div className="group flex items-center gap-3 border border-[#CBD5E1] rounded-xl px-4 h-[52px] mb-5 focus-within:ring-2 focus-within:ring-[#001F3F]">
+            <div className="group flex items-center gap-3 border border-[#CBD5E1] rounded-xl px-4 h-[52px] mb-1 focus-within:ring-2 focus-within:ring-[#001F3F]">
               <FiLock size={18} className="text-[#94A3B8]" />
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 placeholder="Enter new password"
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full outline-none bg-transparent"
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  if (errors.password) setErrors((p) => ({ ...p, password: "" }));
+                }}
+                className="w-full outline-none text-[16px] text-black bg-transparent"
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                className="text-[#99A1AF] hover:text-[#001F3F] transition"
+              >
+                {showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
+              </button>
             </div>
-
+             {errors.password && <p className="text-red-500 text-xs mb-3">{errors.password}</p>}
+            </div>
+            <div className="mb-4">
             <label className="block text-[#364153] mb-2">Confirm New Password</label>
-            <div className="group flex items-center gap-3 border border-[#CBD5E1] rounded-xl px-4 h-[52px] mb-6 focus-within:ring-2 focus-within:ring-[#001F3F]">
+            <div className="group flex items-center gap-3 border border-[#CBD5E1] rounded-xl px-4 h-[52px] mb-1 focus-within:ring-2 focus-within:ring-[#001F3F]">
               <FiLock size={18} className="text-[#94A3B8]" />
               <input
-                type="password"
+                type={showConfirmPassword ? "text" : "password"} 
                 placeholder="Confirm new password"
-                onChange={(e) => setConfirm(e.target.value)}
-                className="w-full outline-none bg-transparent"
+                onChange={(e) => {
+                  setConfirm(e.target.value);
+                  if (errors.confirm) setErrors((p) => ({ ...p, confirm: "" }));
+                }}
+                className="w-full outline-none text-[16px] text-black bg-transparent"
               />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword((v) => !v)}
+                className="text-[#99A1AF] hover:text-[#001F3F] transition"
+              >
+                {showConfirmPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
+              </button>
             </div>
+            {errors.confirm && <p className="text-red-500 text-xs mb-3">{errors.confirm}</p>}
+            </div>
+            {errors.server && <p className="text-red-600 text-sm mb-4">{errors.server}</p>}
 
             <button
               onClick={handleSubmit}
