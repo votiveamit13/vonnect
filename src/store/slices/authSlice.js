@@ -47,27 +47,32 @@ const authSlice = createSlice({
     error: null,
   },
   reducers: {
-    hydrate(state) {
-      if (typeof window !== "undefined") {
-        state.token = localStorage.getItem("token");
-      }
-    },
-    logout(state) {
-      state.token = null;
-      state.user = null;
-
-      if (typeof window !== "undefined") {
-        localStorage.removeItem("token");
-        localStorage.removeItem("role");
-        localStorage.removeItem("buildingId");
-        localStorage.removeItem("role_id");
-
-        document.cookie = "token=; path=/; max-age=0";
-        document.cookie = "role=; path=/; max-age=0";
-        document.cookie = "buildingId=; path=/; max-age=0";
-      }
-    },
+  hydrate(state) {
+    if (typeof window !== "undefined") {
+      const match = document.cookie.match(new RegExp("(^| )token=([^;]+)"));
+      state.token = match ? match[2] : null;
+      state.error = null;
+    }
   },
+
+  logout(state) {
+    state.token = null;
+    state.user = null;
+    state.error = null;
+
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("remembered_username");
+
+      document.cookie = "token=; path=/; max-age=0";
+      document.cookie = "role=; path=/; max-age=0";
+      document.cookie = "buildingId=; path=/; max-age=0";
+    }
+  },
+
+  clearError(state) {
+    state.error = null;
+  },
+},
   extraReducers: (builder) => {
     builder
       .addCase(loginThunk.pending, (state) => {
@@ -99,5 +104,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { logout, hydrate } = authSlice.actions;
+export const { logout, hydrate, clearError } = authSlice.actions;
 export default authSlice.reducer;

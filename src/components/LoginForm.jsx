@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { FiUser, FiLock, FiEye, FiEyeOff } from "react-icons/fi";
 import Link from "next/link";
 import { useDispatch, useSelector } from "react-redux";
-import { loginThunk, getProfileThunk } from "@/store/slices/authSlice";
+import { loginThunk, getProfileThunk, clearError } from "@/store/slices/authSlice";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 
@@ -22,6 +22,10 @@ export default function LoginForm({ role, role_id }) {
   const dispatch = useDispatch();
   const { loading, error: serverError } = useSelector((s) => s.auth);
   const router = useRouter();
+
+  useEffect(() => {
+  dispatch(clearError());
+}, []);
 
   useEffect(() => {
     const savedUsername = localStorage.getItem("remembered_username");
