@@ -5,21 +5,14 @@ import Header from "@/components/Header";
 import { FaRegCalendarAlt } from "react-icons/fa";
 import { FiUsers, FiPhone, FiMessageCircle, FiMessageSquare, FiDollarSign, FiHome, FiCheckSquare, FiTruck, FiCalendar, FiUserPlus } from "react-icons/fi";
 import { IoDocumentTextOutline } from "react-icons/io5";
-import { LuLaptopMinimalCheck } from "react-icons/lu";
+import { LuBriefcaseBusiness, LuBuilding2, LuClipboardList, LuLaptopMinimalCheck } from "react-icons/lu";
 import { MdPets } from "react-icons/md";
+import { FaArrowTrendUp } from "react-icons/fa6";
 
 export default function AdministratorPage() {
-  const user = {
-    name: "Administrator",
-    unit: "Unit 405 - Ocean View Residences",
-    avatar: null,
-  };
   return (
     <>
       <Header
-        name={user.name}
-        unit={user.unit}
-        avatarUrl={user.avatar}
         showWelcomeCard
       />
 
@@ -34,23 +27,23 @@ export default function AdministratorPage() {
 
         <ServicesGrid
           items={[
-            { label: "Maintenance Fees", icon: <FiDollarSign size={24} />, href: "/owner/fees" },
-            { label: "Unit Management", icon: <FiHome size={24} />, href: "/owner/units" },
-            { label: "Tasks", icon: <FiCheckSquare size={24} />, href: "/owner/tasks" },
+            { label: "Maintenance Fees", icon: <FiDollarSign size={24} />, href: "/" },
+            { label: "Unit Management", icon: <LuBuilding2 size={24} />, href: "/administration/unit-management" },
+            { label: "Tasks", icon: <LuClipboardList size={24} />, href: "/" },
 
-            { label: "Employees", icon: <FiUsers size={24} />, href: "/owner/employees" },
-            { label: "Services", icon: <FiTruck size={24} />, href: "/owner/services" },
-            { label: "Communications", icon: <FiMessageSquare size={24} />, href: "/owner/communications" },
+            { label: "Employees", icon: <LuBriefcaseBusiness size={24} />, href: "/" },
+            { label: "Services", icon: <FaArrowTrendUp size={24} />, href: "/" },
+            { label: "Communications", icon: <FiMessageSquare size={24} />, href: "/" },
 
-            { label: "Events", icon: <FaRegCalendarAlt size={24} />, href: "/owner/events" },
-            { label: "Voting System", icon: <LuLaptopMinimalCheck size={24} />, href: "/owner/voting" },
-            { label: "Rules & Regulations", icon: <IoDocumentTextOutline size={24} />, href: "/owner/rules" },
+            { label: "Events", icon: <FaRegCalendarAlt size={24} />, href: "/" },
+            { label: "Voting System", icon: <LuLaptopMinimalCheck size={24} />, href: "/" },
+            { label: "Rules & Regulations", icon: <IoDocumentTextOutline size={24} />, href: "/" },
 
-            { label: "Reservations", icon: <FiCalendar size={24} />, href: "/owner/reservations" },
-            { label: "Visitors", icon: <FiUserPlus size={24} />, href: "/owner/visitors" },
-            { label: "Tenant Management", icon: <FiHome size={24} />, href: "/owner/tenants" },
+            { label: "Reservations", icon: <FiCalendar size={24} />, href: "/" },
+            { label: "Visitors", icon: <FiUserPlus size={24} />, href: "/" },
+            { label: "Tenant Management", icon: <FiHome size={24} />, href: "/" },
 
-            { label: "Pets", icon: <MdPets size={24} />, href: "/owner/pets" },
+            { label: "Pets", icon: <MdPets size={24} />, href: "/" },
           ]}
         />
       </main>

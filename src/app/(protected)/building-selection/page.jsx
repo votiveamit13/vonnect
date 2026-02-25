@@ -48,28 +48,60 @@
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { LuBuilding2 } from "react-icons/lu";
+import { getAssociatedBuildings } from "@/lib/api";
+import { useEffect, useState } from "react";
 
 export default function SelectBuildingPage() {
   const router = useRouter();
+  const [buildings, setBuildings] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const buildings = [
-    { id: 1, name: "Building 1" },
-    { id: 2, name: "Building 2" },
-    { id: 3, name: "Building 3" },
-    { id: 4, name: "Building 4" },
-  ];
+  useEffect(() => {
+    const fetchBuildings = async () => {
+      try {
+        const res = await getAssociatedBuildings();
+
+        const list = res.data?.data || [];
+
+        const normalized = list.map((item) => ({
+          id: item.building.id,
+          name: item.building.name,
+        }));
+
+        setBuildings(normalized);
+      } catch (err) {
+        toast.error("Failed to load buildings");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBuildings();
+  }, []);
 
   const handleSelect = (id) => {
-    const role = localStorage.getItem("role"); // owner | tenant | security | administration
+    const role = localStorage.getItem("role");
 
-    // persist building
+    if (!role) {
+      toast.error("Role missing, please login again");
+      router.replace("/");
+      return;
+    }
+
+    document.cookie = `buildingId=${id}; path=/; SameSite=Lax`;
     localStorage.setItem("buildingId", id);
-    document.cookie = `buildingId=${id}; path=/;`;
 
-    // redirect to role dashboard
     router.push(`/${role}`);
   };
 
+  if (loading) {
+    return (
+      <main className="min-h-screen w-full bg-[#001F3F] flex items-center justify-center text-white">
+        Loading buildings...
+      </main>
+    );
+  }
   return (
     <main className="min-h-screen w-full bg-[#001F3F] flex items-center justify-center px-4 sm:px-6 relative">
       <div className="w-full max-w-md sm:max-w-lg text-center">
@@ -80,24 +112,28 @@ export default function SelectBuildingPage() {
           Select your building to continue
         </p>
 
-        <div className="space-y-4 sm:space-y-5">
-          {buildings.map((b) => (
-            <button
-              key={b.id}
-              onClick={() => handleSelect(b.id)}
-              className="group block w-full h-[80px] sm:h-[85px] md:h-[90px] bg-white rounded-[10px] px-4 sm:px-5 flex items-center gap-4 sm:gap-5 transition-transform sm:hover:scale-[1.05] active:scale-[0.99]"
-            >
-              <div className="w-[44px] h-[44px] sm:w-[48px] sm:h-[48px] rounded-full bg-[#071E34] flex items-center justify-center shrink-0">
-                <LuBuilding2 stroke="white" size={24} />
-              </div>
-              <div className="text-left">
-                <h3 className="text-[14px] sm:text-[15px] md:text-[18px] text-[#001F3F]">
-                  {b.name}
-                </h3>
-              </div>
-            </button>
-          ))}
-        </div>
+       {buildings.length === 0 ? (
+          <p className="text-white/70">No buildings assigned to you.</p>
+        ) : (
+          <div className="space-y-4 sm:space-y-5">
+            {buildings.map((b) => (
+              <button
+                key={b.id}
+                onClick={() => handleSelect(b.id)}
+                className="group block w-full h-[80px] sm:h-[85px] md:h-[90px] bg-white rounded-[10px] px-4 sm:px-5 flex items-center gap-4 sm:gap-5 transition-transform sm:hover:scale-[1.05] active:scale-[0.99]"
+              >
+                <div className="w-[44px] h-[44px] sm:w-[48px] sm:h-[48px] rounded-full bg-[#071E34] flex items-center justify-center shrink-0">
+                  <LuBuilding2 stroke="white" size={24} />
+                </div>
+                <div className="text-left">
+                  <h3 className="text-[14px] sm:text-[15px] md:text-[18px] text-[#001F3F]">
+                    {b.name}
+                  </h3>
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
       </div>
     </main>
   );

@@ -76,9 +76,13 @@ export default function Header({ showWelcomeCard }) {
 
               <div className="text-white">
                 <p className="text-[14px] text-white/70">Welcome,</p>
-                <p className="font-medium">{user?.name || "..."}</p>
+                <p className="text-[16px]">{user?.name || ""}</p>
                 <p className="text-[14px] text-white/80">
-                  {user?.details?.unit_id || "..."} - {buildingName || "..."}
+                  {roleName === "Administration" ? (
+                    <>Administrator - {buildingName || ""}</>
+                  ) : (
+                    <>{user?.details?.unit_id || ""} - {buildingName || ""}</>
+                  )}
                 </p>
               </div>
             </div>

@@ -48,7 +48,7 @@ export default function Profile() {
           name: user.name,
           role: roleName,
           unit: buildingName,
-          property: `${user.details.unit_id}`,
+          property: `${user.details.unit_id || ""}`,
           image: avatarUrl,
         }}
         tabs={["Profile", "Properties", "Documents", "Notifications", "Settings", "About"]}

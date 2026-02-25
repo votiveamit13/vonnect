@@ -6,8 +6,12 @@ const api = axios.create({
 
 api.interceptors.request.use((config) => {
   if (typeof window !== "undefined") {
-    const token = localStorage.getItem("token");
-    if (token) config.headers.Authorization = `Bearer ${token}`;
+    const match = document.cookie.match(new RegExp('(^| )token=([^;]+)'));
+    const token = match ? match[2] : null;
+
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
   }
   return config;
 });
@@ -37,4 +41,8 @@ export const updateProfilePictureApi = (file) => {
       "Content-Type": "multipart/form-data",
     },
   });
+};
+
+export const getAssociatedBuildings = () => {
+  return api.get("/associate-building-list");
 };

@@ -19,7 +19,7 @@ export default function EmailVerifiedPage() {
   useEffect(() => {
     const verifyEmail = async () => {
       try {
-        await api.post(`/verify-email/${token}`);
+        await api.get(`/verify-email/${token}`);
         setVerified(true);
         toast.success("Email verified successfully 🎉");
       } catch (err) {
