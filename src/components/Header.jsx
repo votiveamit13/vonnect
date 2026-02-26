@@ -16,8 +16,9 @@ export default function Header({ showWelcomeCard }) {
   const router = useRouter();
   const UPLOAD_URL = process.env.NEXT_PUBLIC_UPLOAD_URL;
   const roleName = useSelector((s) => selectRoleName(s, user?.role_id));
-  const buildingName = useSelector((s) => selectBuildingName(s, user?.details?.building_id));
-
+  const buildingId = user?.assignments?.[0]?.building_id;
+  const buildingName = useSelector((s) => selectBuildingName(s, buildingId));
+  
   useEffect(() => {
     if (!user && token) {
       dispatch(getProfileThunk());

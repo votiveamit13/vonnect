@@ -3,10 +3,13 @@
 import InfoCard from "@/components/common/InfoCard";
 import NavigationHeader from "@/components/common/NavigationHeader";
 import Tabs from "@/components/common/Tabs";
+import FloatingActionButton from "@/components/FloatingButton";
+import Link from "next/link";
 import { useState } from "react";
 import { FaPlus } from "react-icons/fa";
-import { FiHome, FiUser, FiCheckCircle, FiChevronRight, FiPlus, FiFileText } from "react-icons/fi";
+import { FiHome, FiUser, FiCheckCircle, FiChevronRight, FiPlus, FiFileText, FiDownload } from "react-icons/fi";
 import { LuBuilding2, LuCar } from "react-icons/lu";
+import { RiDeleteBinLine } from "react-icons/ri";
 
 export default function UnitDetailsPage() {
     const [activeTab, setActiveTab] = useState("unit");
@@ -161,6 +164,11 @@ export default function UnitDetailsPage() {
                             mainOwner: false,
                         },
                     ].map((member) => (
+                        <Link
+        key={member.id}
+        href={`/administration/unit-management/101/member/${member.id}`}
+        className="block"
+      >
                         <div
                             key={member.id}
                             className="bg-white rounded-[10px] shadow-sm overflow-hidden border border-[#eff0f1] hover:shadow-md transition"
@@ -203,15 +211,14 @@ export default function UnitDetailsPage() {
                                 </div>
                             </div>
                         </div>
+                        </Link>
                     ))}
 
-                    <button
-                        className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-5 h-[56px] rounded-full bg-[#001F3F] text-white text-[14px] font-normal shadow-lg hover:bg-[#036] transition"
+                    <FloatingActionButton
+                        label="Add New Member"
+                        icon={FiPlus}
                         onClick={() => console.log("Add new member")}
-                    >
-                        <span><FiPlus size={24} /></span>
-                        Add New Member
-                    </button>
+                    />
                 </div>
             )}
 
@@ -235,19 +242,19 @@ export default function UnitDetailsPage() {
                                 {documents.map((doc) => (
                                     <div
                                         key={doc.id}
-                                        className="flex items-center justify-between px-4 py-3 rounded-[8px] border border-[#EFF0F1] hover:bg-[#F8FAFC] transition"
+                                        className="flex items-center justify-between px-4 h-[54px] rounded-[10px] border border-[#E5E7EB] bg-[#F9FAFB]"
                                     >
-                                        <div className="flex items-center gap-2 text-[#001F3F] text-[14px]">
-                                            <FiFileText size={16} />
+                                        <div className="flex items-center gap-2 text-[#364153] text-[12px]">
+                                            <FiFileText size={16} stroke="#001F3F" />
                                             {doc.name}
                                         </div>
 
                                         <div className="flex items-center gap-3">
                                             <button className="text-[#001F3F] hover:scale-110 transition">
-                                                ⬇️
+                                                <FiDownload size={16}/>
                                             </button>
-                                            <button className="text-red-500 hover:scale-110 transition">
-                                                🗑️
+                                            <button className="text-[#E7000B] hover:scale-110 transition">
+                                                <RiDeleteBinLine size={16}/>
                                             </button>
                                         </div>
                                     </div>
@@ -266,10 +273,8 @@ export default function UnitDetailsPage() {
                 </div>
             )}
             {showUploadModal && (
-                <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/40 backdrop-blur-[2px] px-4">
-                    <div className="w-full max-w-[420px] bg-white rounded-[12px] shadow-xl overflow-hidden">
-
-                        {/* Header */}
+                <div className="fixed inset-0 z-[999] flex items-center justify-center px-4">
+                    <div className="w-full max-w-[448px] bg-white rounded-[10px] shadow-xl overflow-hidden">
                         <div className="flex items-center justify-between px-5 py-4 bg-[#001F3F] text-white">
                             <div>
                                 <p className="text-[14px]">Upload New Document</p>
@@ -284,26 +289,25 @@ export default function UnitDetailsPage() {
                             </button>
                         </div>
 
-                        {/* Body */}
                         <div className="p-5 space-y-4">
                             <div>
-                                <label className="block text-[13px] text-[#4A5565] mb-1">
+                                <label className="block text-[12px] text-[#4A5565] mb-1">
                                     Document Name *
                                 </label>
                                 <input
                                     value={docName}
                                     onChange={(e) => setDocName(e.target.value)}
                                     placeholder="Enter document name"
-                                    className="w-full h-[44px] px-3 rounded-[8px] border border-[#D1D5DC] outline-none focus:border-[#001F3F]"
+                                    className="w-full h-[44px] px-3 rounded-[10px] border border-[#D1D5DC] text-black placeholder:text-[#0A0A0A]/50 outline-none transition focus-within:border-[#001F3F] focus-within:ring-2 focus-within:ring-[#001F3F]"
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-[13px] text-[#4A5565] mb-1">
+                                <label className="block text-[12px] text-[#4A5565] mb-1">
                                     Choose File *
                                 </label>
 
-                                <label className="w-full h-[44px] px-3 rounded-[8px] border border-[#D1D5DC] flex items-center justify-between cursor-pointer hover:border-[#001F3F] transition">
+                                <label className="w-full h-[44px] px-3 rounded-[8px] border border-[#D1D5DC] flex items-center justify-between cursor-pointer">
                                     <span className="inline-flex items-center gap-2 px-3 h-[28px] rounded-full bg-[#001F3F] text-white text-[12px]">
                                         Choose File
                                     </span>

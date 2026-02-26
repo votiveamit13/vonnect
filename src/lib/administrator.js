@@ -28,6 +28,6 @@ export const getBuildingWiseUsers = ({ buildingId, page = 1, limit = 10 } = {}) 
   });
 };
 
-export const verifyUserApi = (user_id) => {
-  return api.post("/user-verification", { user_id });
+export const verifyUserApi = ({ user_id, status }) => {
+  return api.post("/user-verification", { user_id, status });
 };

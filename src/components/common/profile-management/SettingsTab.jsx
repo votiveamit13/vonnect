@@ -15,9 +15,8 @@ export default function SettingsTab({ title = "Settings", items = [] }) {
           {items.map((item, i) => {
             const content = (
               <div
-                className={`flex items-center justify-between px-5 py-4 ${
-                  i !== items.length - 1 ? "border-b border-[#E5E7EB]" : ""
-                }`}
+                className={`flex items-center justify-between px-5 py-4 ${i !== items.length - 1 ? "border-b border-[#E5E7EB]" : ""
+                  }`}
               >
                 <div className="flex items-center gap-3">
                   <span className="text-[#99A1AF]">{item.icon}</span>
@@ -27,9 +26,12 @@ export default function SettingsTab({ title = "Settings", items = [] }) {
                 </div>
 
                 {item.type === "dropdown" ? (
-                  <select className="border border-[#D1D5DC] rounded-[10px] px-3 py-1 text-[12px] text-[#001F3F] bg-white focus:outline-none">
+                  <select
+                    value={item.value}
+                    onChange={(e) => item.onChange?.(e.target.value)} className="border border-[#D1D5DC] rounded-[10px] px-3 py-1 text-[12px] text-[#001F3F] bg-white focus:outline-none"  >
                     {item.options?.map((opt, idx) => (
-                      <option key={idx}>{opt}</option>
+                      <option key={idx} value={opt.value}>      {opt.label}
+                      </option>
                     ))}
                   </select>
                 ) : (

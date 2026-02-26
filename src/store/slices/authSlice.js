@@ -47,32 +47,38 @@ const authSlice = createSlice({
     error: null,
   },
   reducers: {
-  hydrate(state) {
-    if (typeof window !== "undefined") {
-      const match = document.cookie.match(new RegExp("(^| )token=([^;]+)"));
-      state.token = match ? match[2] : null;
+    hydrate(state) {
+      if (typeof window !== "undefined") {
+        const match = document.cookie.match(new RegExp("(^| )token=([^;]+)"));
+        state.token = match ? match[2] : null;
+        state.error = null;
+      }
+    },
+
+    updateUserLang(state, action) {
+    if (state.user) {
+      state.user.lang = action.payload;
+    }
+  },
+
+    logout(state) {
+      state.token = null;
+      state.user = null;
       state.error = null;
-    }
+
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("remembered_username");
+
+        document.cookie = "token=; path=/; max-age=0";
+        document.cookie = "role=; path=/; max-age=0";
+        document.cookie = "buildingId=; path=/; max-age=0";
+      }
+    },
+
+    clearError(state) {
+      state.error = null;
+    },
   },
-
-  logout(state) {
-    state.token = null;
-    state.user = null;
-    state.error = null;
-
-    if (typeof window !== "undefined") {
-      localStorage.removeItem("remembered_username");
-
-      document.cookie = "token=; path=/; max-age=0";
-      document.cookie = "role=; path=/; max-age=0";
-      document.cookie = "buildingId=; path=/; max-age=0";
-    }
-  },
-
-  clearError(state) {
-    state.error = null;
-  },
-},
   extraReducers: (builder) => {
     builder
       .addCase(loginThunk.pending, (state) => {
@@ -104,5 +110,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { logout, hydrate, clearError } = authSlice.actions;
+export const { logout, updateUserLang, hydrate, clearError } = authSlice.actions;
 export default authSlice.reducer;
