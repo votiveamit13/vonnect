@@ -28,8 +28,11 @@ export const forgotPasswordApi = (email) => {
   return api.post("/forgot-password", { email });
 };
 
-export const resetPasswordApi = (token, password) => {
-  return api.post(`/reset-password/${token}`, { password });
+export const resetPasswordApi = (token, password, confirmPassword) => {
+  return api.post(`/reset-password/${token}`, {
+    password,
+    confirmPassword,
+  });
 };
 
 export const updateProfilePictureApi = (file) => {

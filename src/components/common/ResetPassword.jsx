@@ -11,6 +11,14 @@ export default function ResetPassword() {
   const role = params.get("role") || "owner";
   const { token } = useParams();
 
+  if (!token) {
+    return (
+      <main className="min-h-screen flex items-center justify-center bg-[#001F3F] text-white">
+        Invalid or expired reset link.
+      </main>
+    );
+  }
+
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -39,7 +47,7 @@ export default function ResetPassword() {
 
     try {
       setLoading(true);
-      await resetPasswordApi(token, password);
+      await resetPasswordApi(token, password, confirm);
       router.push(`/password-reset-success?role=${role}`);
     } catch (err) {
       setErrors((p) => ({
@@ -63,7 +71,7 @@ export default function ResetPassword() {
 
       <div className="min-h-screen flex items-center justify-center px-4 sm:px-6 pt-16 sm:pt-20">
         <div className="w-full max-w-md text-center">
-          <h1 className="text-white text-[28px] sm:text-[32px] md:text-[36px] font-semibold tracking-wide">
+          <h1 className="text-white text-[28px] sm:text-[32px] md:text-[36px] tracking-wide">
             VONNECT
           </h1>
 
