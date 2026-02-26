@@ -51,23 +51,40 @@ export default function ManageUsers() {
     fetchUsers();
   }, [page]);
 
-const handleApprove = async (id) => {
-  try {
-    setProcessingId(id);
-    setUsers((prev) => prev.filter((u) => u.id !== id));
-    await verifyUserApi(id);
-    toast.success("User approved & verification email sent");
-  } catch (err) {
-    toast.error("Failed to approve user");
-    refetchUsers();
-  } finally {
-    setProcessingId(null);
-  }
-};
+  const handleApprove = async (id) => {
+    try {
+      setProcessingId(id);
 
-  const handleReject = (id) => {
-    setUsers((prev) => prev.filter((u) => u.id !== id));
-    // toast.success("User rejected (hook API here)");
+      setUsers((prev) => prev.filter((u) => u.id !== id));
+
+      await verifyUserApi({ user_id: id, status: 1 });
+
+      toast.success("User approved & verification email sent");
+    } catch (err) {
+      console.error(err);
+      toast.error(err?.response?.data?.message || "Failed to approve user");
+      refetchUsers?.();
+    } finally {
+      setProcessingId(null);
+    }
+  };
+
+  const handleReject = async (id) => {
+    try {
+      setProcessingId(id);
+
+      setUsers((prev) => prev.filter((u) => u.id !== id));
+
+      await verifyUserApi({ user_id: id, status: 2 });
+
+      toast.success("User rejected successfully");
+    } catch (err) {
+      console.error(err);
+      toast.error(err?.response?.data?.message || "Failed to reject user");
+      refetchUsers?.();
+    } finally {
+      setProcessingId(null);
+    }
   };
 
   return (
@@ -82,7 +99,6 @@ const handleApprove = async (id) => {
         ) : (
           users.map((user) => (
             <div key={user.id} className="bg-white rounded-xl shadow-sm border border-[#E5E7EB] overflow-hidden mb-4">
-              {/* Header */}
               <div className="flex items-center justify-between bg-[#001F3F] px-4 py-3 text-white">
                 <div className="flex items-center gap-2">
                   <FiUser />
@@ -90,7 +106,6 @@ const handleApprove = async (id) => {
                 </div>
               </div>
 
-              {/* Body */}
               <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8 text-sm">
                 <div>
                   <p className="text-[#6A7282]">ID Number</p>
@@ -121,19 +136,28 @@ const handleApprove = async (id) => {
                 </div>
               </div>
 
-              {/* Actions */}
               <div className="px-4 pb-4 flex gap-3">
                 <button
-                  disabled={processingId === user.id}
+                  disabled={processingId === user.id || user.isActive}
                   onClick={() => handleApprove(user.id)}
-                  className="flex-1 h-10 rounded-lg bg-[#001F3F] text-white text-sm hover:opacity-90 transition"
+                  className={`flex-1 h-10 rounded-lg text-sm transition
+                    ${user.isActive
+                      ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+                      : "bg-[#001F3F] text-white hover:opacity-90"}
+                    ${processingId === user.id ? "opacity-70 cursor-wait" : ""}
+                  `}
                 >
-                  Approve
+                  {user.isActive ? "Approved" : processingId === user.id ? "Approving..." : "Approve"}
                 </button>
 
                 <button
+                  disabled={processingId === user.id}
                   onClick={() => handleReject(user.id)}
-                  className="flex-1 h-10 rounded-lg border border-red-500 text-red-500 text-sm hover:bg-red-50 transition"
+                  className={`flex-1 h-10 rounded-lg text-sm transition
+                    ${processingId === user.id
+                      ? "border border-gray-300 text-gray-400 cursor-not-allowed"
+                      : "border border-red-500 text-red-500 hover:bg-red-50"}
+                  `}
                 >
                   Reject
                 </button>
@@ -142,7 +166,6 @@ const handleApprove = async (id) => {
           ))
         )}
 
-        {/* Pagination UI (optional) */}
         {pagination && (
           <div className="flex items-center justify-center gap-4 mt-6">
             <button

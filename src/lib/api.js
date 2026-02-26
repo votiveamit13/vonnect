@@ -49,3 +49,11 @@ export const updateProfilePictureApi = (file) => {
 export const getAssociatedBuildings = () => {
   return api.get("/associate-building-list");
 };
+
+export const getUserDocumentsApi = () => {
+  return api.get("/user-document-list");
+};
+
+export const updateLanguageApi = (language_code) => {
+  return api.put("/language-update", { language_code });
+};

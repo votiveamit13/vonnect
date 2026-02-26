@@ -11,21 +11,75 @@ import SettingsTab from "@/components/common/profile-management/SettingsTab";
 import AboutTab from "@/components/common/profile-management/AboutTab";
 import { useSearchParams } from "next/navigation";
 import { selectRoleName, selectBuildingName } from "@/store/selectors";
+import { useEffect, useState } from "react";
+import { getUserDocumentsApi, updateLanguageApi } from "@/lib/api";
+import { updateUserLang } from "@/store/slices/authSlice";
+import { useDispatch } from "react-redux";
+import toast from "react-hot-toast";
 
 export default function Profile() {
   // const params = await searchParams;
   const user = useSelector((s) => s.auth.user);
- const searchParams = useSearchParams();
+  const searchParams = useSearchParams();
   const tab = searchParams.get("tab") || "profile";
-  const UPLOAD_URL=process.env.NEXT_PUBLIC_UPLOAD_URL;
+  const UPLOAD_URL = process.env.NEXT_PUBLIC_UPLOAD_URL;
   const roleName = useSelector((s) => selectRoleName(s, user?.role_id));
-  const buildingName = useSelector((s) => selectBuildingName(s, user?.details?.building_id)); 
+  const buildingName = useSelector((s) => selectBuildingName(s, user?.details?.building_id));
+  const [documents, setDocuments] = useState([]);
+  const [docsLoading, setDocsLoading] = useState(false);
+  const dispatch = useDispatch();
 
   const avatarUrl = user?.details?.profile_picture
-  ? `${UPLOAD_URL}${user.details.profile_picture}`
-  : null;
+    ? `${UPLOAD_URL}${user.details.profile_picture}`
+    : null;
 
   // const view = params?.view || null;
+
+  useEffect(() => {
+    if (tab !== "documents") return;
+
+    const fetchDocs = async () => {
+      try {
+        setDocsLoading(true);
+        const res = await getUserDocumentsApi();
+
+        const apiDocs = res.data?.data || [];
+
+        const normalized = apiDocs.map((d) => ({
+          type: d.document_type || "other",
+          title: d.file_name,
+          subtitle: d.meta_data?.label || "Uploaded document",
+          downloadUrl: `${UPLOAD_URL}${d.file_path}`,  // full URL
+          mimeType: d.mime_type,
+          createdAt: d.created_at,
+        }));
+
+        setDocuments(normalized);
+      } catch (err) {
+        console.error(err);
+        toast.error("Failed to load documents");
+      } finally {
+        setDocsLoading(false);
+      }
+    };
+
+    fetchDocs();
+  }, [tab]);
+
+  const handleLanguageChange = async (lang) => {
+    console.log("Updating language to:", lang);
+
+    try {
+      const res = await updateLanguageApi(lang);
+      console.log("API response:", res.data);
+
+      dispatch(updateUserLang(lang));
+      toast.success("Language updated");
+    } catch (err) {
+      console.error(err);
+      toast.error(err.response?.data?.message || "Failed to update language");
+    }
+  };
 
   if (!user) return null;
 
@@ -129,38 +183,8 @@ export default function Profile() {
 
       {tab === "documents" && (
         <DocumentsTab
-          documents={[
-            {
-              type: "ownership",
-              title: "Ownership Certificate",
-              subtitle: "Certificate #: OC-2024-405",
-              downloadUrl: "/docs/ownership.pdf",
-            },
-            {
-              type: "insurance",
-              title: "Property Insurance",
-              subtitle: "Policy #: PI-789456-2024",
-              downloadUrl: "/docs/property-insurance.pdf",
-            },
-            {
-              type: "vehicle",
-              title: "Vehicle Insurance - ABC-123",
-              subtitle: "Toyota Camry 2022",
-              downloadUrl: "/docs/vehicle-abc.pdf",
-            },
-            {
-              type: "vehicle",
-              title: "Vehicle Insurance - XYZ-789",
-              subtitle: "Honda CR-V 2021",
-              downloadUrl: "/docs/vehicle-xyz.pdf",
-            },
-            {
-              type: "other",
-              title: "Other Documents",
-              subtitle: "Additional files",
-              downloadUrl: "/docs/other.pdf",
-            },
-          ]}
+          loading={docsLoading}
+          documents={documents}
         />
       )}
       {tab === "notifications" && (
@@ -242,7 +266,12 @@ export default function Profile() {
               label: "Preferred Language",
               icon: <FiGlobe size={20} />,
               type: "dropdown",
-              options: ["English", "Spanish", "French"],
+              value: user?.lang || "en",
+              options: [
+                { label: "English", value: "en" },
+                { label: "Spanish", value: "es" },
+              ],
+              onChange: handleLanguageChange
             },
             {
               key: "support",
