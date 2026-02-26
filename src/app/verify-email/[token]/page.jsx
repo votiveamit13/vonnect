@@ -21,9 +21,9 @@ export default function EmailVerifiedPage() {
       try {
         await api.get(`/verify-email/${token}`);
         setVerified(true);
-        toast.success("Email verified successfully 🎉");
+        // toast.success("Email verified successfully");
       } catch (err) {
-        toast.error(err.response?.data?.message || "Verification failed");
+        // toast.error(err.response?.data?.message || "Verification failed");
       } finally {
         setLoading(false);
       }

@@ -3,13 +3,13 @@
 import { useState } from "react";
 import Link from "next/link";
 import { FiArrowLeft, FiLock, FiEye, FiEyeOff } from "react-icons/fi";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { resetPasswordApi } from "@/lib/api";
 
 export default function ResetPassword() {
   const params = useSearchParams();
   const role = params.get("role") || "owner";
-  const token = params.get("token");
+  const { token } = useParams();
 
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
