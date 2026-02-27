@@ -12,7 +12,7 @@ import AboutTab from "@/components/common/profile-management/AboutTab";
 import { useSearchParams } from "next/navigation";
 import { selectRoleName, selectBuildingName } from "@/store/selectors";
 import { useEffect, useState } from "react";
-import { getUserDocumentsApi, updateLanguageApi } from "@/lib/api";
+import { getAboutApi, getNotificationTypesApi, getUserDocumentsApi, updateLanguageApi } from "@/lib/api";
 import { updateUserLang } from "@/store/slices/authSlice";
 import { useDispatch } from "react-redux";
 import toast from "react-hot-toast";
@@ -28,6 +28,10 @@ export default function Profile() {
   const [documents, setDocuments] = useState([]);
   const [docsLoading, setDocsLoading] = useState(false);
   const dispatch = useDispatch();
+  const [notificationItems, setNotificationItems] = useState([]);
+const [notificationLoading, setNotificationLoading] = useState(false);
+const [aboutData, setAboutData] = useState(null);
+const [aboutLoading, setAboutLoading] = useState(false);
 
   const avatarUrl = user?.details?.profile_picture
     ? `${UPLOAD_URL}${user.details.profile_picture}`
@@ -80,6 +84,57 @@ export default function Profile() {
       toast.error(err.response?.data?.message || "Failed to update language");
     }
   };
+
+  useEffect(() => {
+  if (tab !== "notifications") return;
+
+  const fetchNotificationTypes = async () => {
+    try {
+      setNotificationLoading(true);
+
+      const res = await getNotificationTypesApi();
+      const types = res.data?.data || [];
+
+      const normalized = types.map((type) => ({
+        key: `type_${type.id}`,
+        id: type.id,
+        title: type.title,
+        description: "Notification updates",
+        icon: <FiBell size={20} />,
+        app: true,
+        email: true,
+      }));
+
+      setNotificationItems(normalized);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to load notification types");
+    } finally {
+      setNotificationLoading(false);
+    }
+  };
+
+  fetchNotificationTypes();
+}, [tab]);
+
+useEffect(() => {
+  if (tab !== "about") return;
+
+  const fetchAbout = async () => {
+    try {
+      setAboutLoading(true);
+      const res = await getAboutApi();
+      setAboutData(res.data?.data);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to load about information");
+    } finally {
+      setAboutLoading(false);
+    }
+  };
+
+  fetchAbout();
+}, [tab]);
 
   if (!user) return null;
 
@@ -189,66 +244,10 @@ export default function Profile() {
       )}
       {tab === "notifications" && (
         <NotificationTab
-          title="Notification Settings"
-          items={[
-            {
-              key: "fees",
-              title: "Maintenance Fees",
-              description: "Payment reminders and updates",
-              icon: <FiDollarSign size={20} />,
-              app: true,
-              email: true,
-            },
-            {
-              key: "events",
-              title: "Events",
-              description: "Community events and activities",
-              icon: <FiCalendar size={20} />,
-              app: true,
-              email: true,
-            },
-            {
-              key: "visitors",
-              title: "Visitors",
-              description: "Guest arrivals and invitations",
-              icon: <FiUsers size={20} />,
-              app: true,
-              email: false,
-            },
-            {
-              key: "services",
-              title: "Service Providers",
-              description: "Maintenance and service updates",
-              icon: <FiTool size={20} />,
-              app: true,
-              email: true,
-            },
-            {
-              key: "messages",
-              title: "Messages",
-              description: "Direct messages and chats",
-              icon: <FiMessageSquare size={20} />,
-              app: true,
-              email: true,
-            },
-            {
-              key: "communications",
-              title: "Communications",
-              description: "Announcements and bulletins",
-              icon: <FiBell size={20} />,
-              app: true,
-              email: true,
-            },
-            {
-              key: "reservations",
-              title: "Reservations",
-              description: "Booking confirmations and reminders",
-              icon: <CiCalendar size={20} />,
-              app: true,
-              email: true,
-            },
-          ]}
-        />
+    title="Notification Settings"
+    items={notificationItems}
+    loading={notificationLoading}
+  />
       )}
       {tab === "settings" && (
         <SettingsTab
@@ -285,16 +284,16 @@ export default function Profile() {
 
       {tab === "about" && (
         <AboutTab
-          appName="VONNECT"
-          subtitle="Property Management Platform"
-          description="The all-in-one community app for smarter, simpler living."
-          longDescription="VONNECT is designed for today’s residential communities – connecting residents and management in one secure, intuitive platform. From smart access and intercom to facility bookings, payments, visitor management, and announcements, VONNECT streamlines everyday living for condos and private estates."
-          legalTitle="End User License Agreement"
-          legalText="By using VONNECT, you agree to our terms of service and privacy policy. This application is licensed, not sold, and your use is governed by specific terms and restrictions."
-          legalHref="/legal"
-          version="1.0.0"
-          copyright="© 2024 VONNECT. All rights reserved."
-          logoSrc="/assets/logo.png"
+          appName={aboutData?.app_name}
+    subtitle={aboutData?.subtitle}
+    description={aboutData?.description}
+    longDescription={aboutData?.long_description}
+    legalTitle={aboutData?.legal_title}
+    legalText={aboutData?.legal_text}
+    version={aboutData?.version}
+    copyright={aboutData?.copyright}
+    logoSrc={aboutData?.logo || "/assets/logo.png"}
+    loading={aboutLoading}
         />
       )}
     </>
