@@ -2,28 +2,17 @@
 import { useSelector } from "react-redux";
 import NavigationHeader from "@/components/common/NavigationHeader";
 import DocumentsTab from "@/components/common/profile-management/DocumentsTab";
-import NotificationTab from "@/components/common/profile-management/NotificationTab";
-import ProfileTab from "@/components/common/profile-management/ProfileTab";
-import PropertiesTab from "@/components/common/profile-management/PropertiesTab";
-import { FiDollarSign, FiCalendar, FiUsers, FiTool, FiMessageSquare, FiBell, FiLock, FiGlobe, FiHelpCircle, FiSettings } from "react-icons/fi";
-import { CiCalendar } from "react-icons/ci";
+import { FiLock, FiGlobe, FiHelpCircle } from "react-icons/fi";
 import SettingsTab from "@/components/common/profile-management/SettingsTab";
 import AboutTab from "@/components/common/profile-management/AboutTab";
 import { useSearchParams } from "next/navigation";
 import { selectRoleName, selectBuildingName } from "@/store/selectors";
 import { useEffect, useState } from "react";
-import {
-  getAboutApi,
-  getNotificationTypesApi,
-  getUserNotificationTypesApi,
-  getUserDocumentsApi,
-  getUserUnitsApi,
-  updateLanguageApi
-} from "@/lib/api";
+import { getAboutApi, getNotificationTypesApi, getUserDocumentsApi, updateLanguageApi } from "@/lib/api";
 import { updateUserLang } from "@/store/slices/authSlice";
 import { useDispatch } from "react-redux";
 import toast from "react-hot-toast";
-import { setUnits } from "@/store/slices/unitSlice";
+import ProfileTab from "./ProfileTab";
 
 export default function Profile() {
   // const params = await searchParams;
@@ -32,11 +21,7 @@ export default function Profile() {
   const tab = searchParams.get("tab") || "profile";
   const UPLOAD_URL = process.env.NEXT_PUBLIC_UPLOAD_URL;
   const roleName = useSelector((s) => selectRoleName(s, user?.role_id));
-  const buildingId = user?.assignments?.[0]?.building_id;
-
-  const buildingName = useSelector((s) =>
-    selectBuildingName(s, buildingId)
-  );
+  const buildingName = useSelector((s) => selectBuildingName(s, user?.details?.building_id));
   const [documents, setDocuments] = useState([]);
   const [docsLoading, setDocsLoading] = useState(false);
   const dispatch = useDispatch();
@@ -44,8 +29,7 @@ export default function Profile() {
   const [notificationLoading, setNotificationLoading] = useState(false);
   const [aboutData, setAboutData] = useState(null);
   const [aboutLoading, setAboutLoading] = useState(false);
-  const [unitsLoading, setUnitsLoading] = useState(false);
-  const [normalizedUnits, setNormalizedUnits] = useState([]);
+
   const avatarUrl = user?.details?.profile_picture
     ? `${UPLOAD_URL}${user.details.profile_picture}`
     : null;
@@ -66,7 +50,7 @@ export default function Profile() {
           type: d.document_type || "other",
           title: d.file_name,
           subtitle: d.meta_data?.label || "Uploaded document",
-          downloadUrl: `${UPLOAD_URL}${d.file_path}`,  // full URL
+          downloadUrl: `${UPLOAD_URL}${d.file_path}`,
           mimeType: d.mime_type,
           createdAt: d.created_at,
         }));
@@ -82,53 +66,6 @@ export default function Profile() {
 
     fetchDocs();
   }, [tab]);
-
-  useEffect(() => {
-  const fetchUnits = async () => {
-    try {
-      setUnitsLoading(true);
-
-      const res = await getUserUnitsApi();
-      const assignments = res.data?.data || [];
-
-      dispatch(setUnits(assignments));
-
-      const normalized = assignments.map((assignment) => {
-        const unit = assignment.Unit;
-        const isRented = String(unit.occupaycy_status) === "true";
-
-        return {
-          id: Number(unit.id),
-          unitNumber: unit.unit_number,
-          propertyName: unit.building?.name || "Building",
-          unitType: unit.unit_type || "Unit",
-          squareMeters: Number(unit.square_meters) || 0,
-          coefficient: Number(unit.coefficient) || 0,
-          status: isRented ? "Rented" : "Owner Occupied",
-          showManageUnit: true,
-          showManageTenant: isRented,
-          complementaryUnits: (unit.complementary_units || []).map((c) => ({
-            id: Number(c.id),
-            type: c.title || c.unit_type,
-            unitNumber: c.unit_number,
-            squareMeters: Number(c.square_meters),
-            coefficient: Number(c.coefficient),
-            showManageTenant: !isRented,
-          })),
-        };
-      });
-
-      setNormalizedUnits(normalized);
-
-    } catch (err) {
-      toast.error("Failed to load units");
-    } finally {
-      setUnitsLoading(false);
-    }
-  };
-
-  fetchUnits();
-}, []);   // 🔥 REMOVE tab dependency
 
   const handleLanguageChange = async (lang) => {
     console.log("Updating language to:", lang);
@@ -148,51 +85,32 @@ export default function Profile() {
   useEffect(() => {
     if (tab !== "notifications") return;
 
-    const fetchNotifications = async () => {
+    const fetchNotificationTypes = async () => {
       try {
         setNotificationLoading(true);
 
-        const [typesRes, userRes] = await Promise.all([
-          getNotificationTypesApi(),
-          getUserNotificationTypesApi(),
-        ]);
+        const res = await getNotificationTypesApi();
+        const types = res.data?.data || [];
 
-        const types = typesRes.data?.data || [];
-        const userSettings = userRes.data?.data || [];
-
-        // Map user settings by notification type id
-        const userMap = {};
-        userSettings.forEach((setting) => {
-          userMap[setting.notification_type.id] = setting;
-        });
-
-        const normalized = types.map((type) => {
-          const userSetting = userMap[type.id];
-
-          return {
-            key: `type_${type.id}`,
-            id: type.id,
-            title: type.title,
-            description: "Notification updates",
-            app: userSetting
-              ? userSetting.app_enabled
-              : false,
-            email: userSetting
-              ? userSetting.email_enabled
-              : false,
-          };
-        });
+        const normalized = types.map((type) => ({
+          key: `type_${type.id}`,
+          id: type.id,
+          title: type.title,
+          description: "Notification updates",
+          app: type.app_enabled ?? false,
+          email: type.email_enabled ?? false,
+        }));
 
         setNotificationItems(normalized);
       } catch (err) {
         console.error(err);
-        toast.error("Failed to load notifications");
+        toast.error("Failed to load notification types");
       } finally {
         setNotificationLoading(false);
       }
     };
 
-    fetchNotifications();
+    fetchNotificationTypes();
   }, [tab]);
 
   useEffect(() => {
@@ -222,42 +140,42 @@ export default function Profile() {
     <>
       <NavigationHeader
         showBack
-        backHref="/owner"
+        backHref="/security"
         title="My Profile"
         showProfile
-        avatarHref="/owner/profile/upload-photo"
+        avatarHref="/security/profile/upload-photo"
+        // profileData={{
+        //   name: "Carlos Rodriguez",
+        //   role: "Owner",
+        //   unit: "Tower A - Unit 405",
+        //   property: "Ocean View Residences",
+        //   image: "",
+        // }}
         profileData={{
           name: user.name,
           role: roleName,
-          unit: `${user.details.unit_id || "Unit"}`,
-          property: buildingName,
+          unit: buildingName,
+          property: `${user.details.unit_id || ""}`,
           image: avatarUrl,
         }}
-        tabs={["Profile", "Properties", "Documents", "Notifications", "Settings", "About"]}
+        tabs={["Profile", "Documents", "Settings", "About"]}
         activeTab={tab.charAt(0).toUpperCase() + tab.slice(1)}
-        baseTabHref="/owner/profile"
+        baseTabHref="/security/profile"
       />
 
       {tab === "profile" && (
         <ProfileTab
-          viewDocumentHref="/owner/profile/document"
+          viewDocumentHref="/security/profile/document"
           data={{
+            id_number: user.details?.id_number || "--",
             documentType: user.details?.document_type || "--",
             documentNumber: user.details?.document_number || "--",
             dob: user.details?.date_of_birth || "--",
             email: user.email,
             phone: user.details?.phone || "--",
-            emergency: user.details?.emergency_number || "--",
-            licenseNumber: user.details?.driver_license_number || "--",
-            licenseExpiry: user.details?.driver_license_expiry || "--",
-            vehicles: user.vehicles || [],
+            role: user.details?.category_role || "--",
+            incorporation: "---",
           }}
-        />
-      )}
-      {tab === "properties" && (
-        <PropertiesTab
-          properties={normalizedUnits}
-          loading={unitsLoading}
         />
       )}
 
@@ -267,13 +185,7 @@ export default function Profile() {
           documents={documents}
         />
       )}
-      {tab === "notifications" && (
-        <NotificationTab
-          title="Notification Settings"
-          items={notificationItems}
-          loading={notificationLoading}
-        />
-      )}
+
       {tab === "settings" && (
         <SettingsTab
           title="Settings"
@@ -283,7 +195,7 @@ export default function Profile() {
               label: "Change Password",
               icon: <FiLock size={20} />,
               type: "link",
-              href: "/owner/profile/change-password",
+              href: "/security/profile/change-password",
             },
             {
               key: "language",

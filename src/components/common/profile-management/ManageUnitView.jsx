@@ -20,7 +20,7 @@ export default function ManageUnitView({
           {members.map((m, i) => (
             <Link
               key={i}
-              href={`/owner/profile/${unitId}/manage-unit/members/${m.id}`}
+              href={`/owner/profile/${unitId}/manage-unit/${m.id}`}
               className={`flex items-center justify-between px-5 py-4 ${
                 i !== members.length - 1 ? "border-b border-[#E5E7EB]" : ""
               }`}

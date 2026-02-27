@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import { FiFileText } from "react-icons/fi";
 import { IoBookOutline } from "react-icons/io5";
 
@@ -58,7 +57,7 @@ export default function AboutTab({
         </p>
 
         <Link
-          href="/owner/profile/agreement"
+          href="/security/profile/agreement"
           className="mt-4 inline-flex items-center justify-center gap-2 w-full h-[44px] rounded-[10px] 
                      bg-[#001F3F] text-white text-[14px] hover:opacity-90 transition"
         >

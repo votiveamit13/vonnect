@@ -6,7 +6,7 @@ export default async function UploadPhotoPage() {
     <main className="min-h-screen w-full bg-[#F5F7FA]">
       <NavigationHeader
         showBack
-        backHref="/owner/profile"
+        backHref="/tenant/profile"
         title="Upload Photo"
         subtitle="Update your profile picture"
       />

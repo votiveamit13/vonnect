@@ -2,42 +2,112 @@
 
 import Loader from "@/components/Loader";
 import { useEffect, useState } from "react";
-import { FiBell } from "react-icons/fi";
+import {
+  FiDollarSign,
+  FiCalendar,
+  FiUsers,
+  FiTool,
+  FiMessageSquare,
+  FiBell,
+} from "react-icons/fi";
+import { CiCalendar } from "react-icons/ci";
+import { updateNotificationSettingApi } from "@/lib/api";
+import toast from "react-hot-toast";
 
 export default function NotificationTab({ title, items = [], loading }) {
   const [settings, setSettings] = useState(items);
   const [master, setMaster] = useState(true);
 
-  // Sync master toggle with children
-  useEffect(() => {
-    setSettings((prev) =>
-      prev.map((item) => ({
-        ...item,
-        app: master,
-        email: master,
-      }))
-    );
-  }, [master]);
+  const notificationIconMap = {
+    1: FiDollarSign,
+    2: FiCalendar,
+    3: FiUsers,
+    4: FiTool,
+    5: FiMessageSquare,
+    6: FiBell,
+    7: CiCalendar,
+  };
 
-  const toggle = (key, type) => {
+  useEffect(() => {
+  if (settings.length > 0) {
+    const allEnabled = settings.every(
+      (s) => s.app && s.email
+    );
+    setMaster(allEnabled);
+  }
+}, [settings]);
+
+  useEffect(() => {
+    setSettings(items);
+  }, [items]);
+
+  const handleMasterToggle = async () => {
+    const newValue = !master;
+    setMaster(newValue);
+
+    const updated = settings.map((item) => ({
+      ...item,
+      app: newValue,
+      email: newValue,
+    }));
+
+    setSettings(updated);
+
+    try {
+      await Promise.all(
+        updated.map((item) =>
+          updateNotificationSettingApi({
+            notification_type_id: item.id,
+            app_enable: newValue,
+            email_enable: newValue,
+          })
+        )
+      );
+      toast.success("All notification settings updated");
+    } catch (err) {
+      toast.error("Failed to update master settings");
+    }
+  };
+
+  const toggle = async (item, type) => {
+    const newValue = !item[type];
+
     setSettings((prev) =>
-      prev.map((item) =>
-        item.key === key ? { ...item, [type]: !item[type] } : item
+      prev.map((s) =>
+        s.id === item.id ? { ...s, [type]: newValue } : s
       )
     );
+
+    try {
+      await updateNotificationSettingApi({
+        notification_type_id: item.id,
+        app_enable:
+          type === "app" ? newValue : item.app,
+        email_enable:
+          type === "email" ? newValue : item.email,
+      });
+      toast.success("Notification setting updated");
+    } catch (err) {
+      toast.error("Failed to update setting");
+
+      setSettings((prev) =>
+        prev.map((s) =>
+          s.id === item.id ? { ...s, [type]: !newValue } : s
+        )
+      );
+    }
   };
 
   return (
     <div className="mt-4 px-4 sm:px-6 pb-10">
       <div className="bg-white rounded-[16px] shadow-[0_10px_20px_-10px_rgba(0,0,0,0.25)] overflow-hidden">
 
-        {/* Header */}
         <div className="bg-[#001F3F] px-5 py-4 flex items-center justify-between text-white rounded-t-[16px]">
           <div className="flex gap-2 items-center">
             <FiBell size={16} />
             <p className="text-[14px]">Notification Settings</p>
           </div>
-          <Toggle checked={master} onChange={() => setMaster(!master)} />
+          <Toggle checked={master} onChange={handleMasterToggle} />
         </div>
 
         {loading ? (
@@ -47,10 +117,12 @@ export default function NotificationTab({ title, items = [], loading }) {
             {settings.map((item) => (
               <div key={item.key} className="px-5 py-4 border-b-2 border-[#E5E5E5]">
 
-                {/* Top Row */}
                 <div className="flex items-start gap-3">
                   <div className="text-[#99A1AF] mt-[2px]">
-                    {item.icon}
+                    {(() => {
+                      const Icon = notificationIconMap[item.id] || FiBell;
+                      return <Icon size={20} />;
+                    })()}
                   </div>
 
                   <div>
@@ -63,17 +135,16 @@ export default function NotificationTab({ title, items = [], loading }) {
                   </div>
                 </div>
 
-                {/* Toggles under text (like your screenshot) */}
                 <div className="flex items-center gap-6 mt-3 pl-7">
                   <Channel
                     label="App"
                     checked={item.app}
-                    onClick={() => toggle(item.key, "app")}
+                    onClick={() => toggle(item, "app")}
                   />
                   <Channel
                     label="Email"
                     checked={item.email}
-                    onClick={() => toggle(item.key, "email")}
+                    onClick={() => toggle(item, "email")}
                   />
                 </div>
               </div>
@@ -93,7 +164,7 @@ function Toggle({ checked, onChange }) {
         }`}
     >
       <span
-        className={`absolute top-[4px] left-[4px] w-[16px] h-[16px] rounded-full bg-[#99A1AF] transition ${checked ? "translate-x-5" : ""
+        className={`absolute top-[4px] left-[4px] w-[16px] h-[16px] rounded-full bg-[#001F3F] transition ${checked ? "translate-x-5" : ""
           }`}
       />
     </button>

@@ -62,10 +62,22 @@ export const getNotificationTypesApi = () => {
   return api.get("/notification-types-list");
 };
 
+export const updateNotificationSettingApi = (payload) => {
+  return api.post("/notification-settings-update", payload);
+};
+
+export const getUserNotificationTypesApi = () => {
+  return api.get("/user-notification-types-list");
+};
+
 export const getAboutApi = () => {
-  return api.get("/api/about");
+  return api.get("/about");
 }
 
 export const getAgreementApi = () => {
-  return api.get("/api/agreement");
+  return api.get("/agreement");
 }
+
+export const getUserUnitsApi = () => {
+  return api.get("/user/units");
+};

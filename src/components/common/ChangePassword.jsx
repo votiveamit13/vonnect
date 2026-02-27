@@ -4,8 +4,18 @@ import { useState } from "react";
 import NavigationHeader from "@/components/common/NavigationHeader";
 import toast from "react-hot-toast";
 import api from "@/lib/api";
+import { useSelector } from "react-redux";
+import { selectRoleName } from "@/store/selectors";
+import { usePathname } from "next/navigation";
 
 export default function ChangePasswordView() {
+const user = useSelector((s) => s.auth.user);
+const roleName = useSelector((s) =>
+  selectRoleName(s, user?.role_id)
+);
+
+const basePath = `/${roleName?.toLowerCase()}/profile`;
+const backHref = `${basePath}?tab=settings`;
   const [form, setForm] = useState({
     currentPassword: "",
     newPassword: "",
@@ -81,7 +91,7 @@ export default function ChangePasswordView() {
     <main className="min-h-screen w-full bg-[#F5F7FA]">
       <NavigationHeader
         showBack
-        backHref="/owner/profile?tab=settings"
+        backHref={backHref}
         title="Change Password"
         subtitle="Update your account password"
       />
