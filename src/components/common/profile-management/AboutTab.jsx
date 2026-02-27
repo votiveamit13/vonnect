@@ -1,19 +1,18 @@
 import Link from "next/link";
-import Image from "next/image";
 import { FiFileText } from "react-icons/fi";
 import { IoBookOutline } from "react-icons/io5";
 
 export default function AboutTab({
-  appName = "VONNECT",
-  subtitle = "Property Management Platform",
-  description = "The all-in-one community app for smarter, simpler living.",
+  loading,
+  appName,
+  subtitle,
+  description,
   longDescription,
-  legalTitle = "End User License Agreement",
+  legalTitle,
   legalText,
-  legalHref = "#",
-  version = "1.0.0",
-  copyright = "© 2024 VONNECT. All rights reserved.",
-  logoSrc = "/assets/logo.png",
+  version,
+  copyright,
+  logoSrc,
 }) {
   return (
     <div className="mt-4 px-4 sm:px-6 pb-10">
@@ -58,7 +57,7 @@ export default function AboutTab({
         </p>
 
         <Link
-          href="/owner/profile/agreement"
+          href="/security/profile/agreement"
           className="mt-4 inline-flex items-center justify-center gap-2 w-full h-[44px] rounded-[10px] 
                      bg-[#001F3F] text-white text-[14px] hover:opacity-90 transition"
         >

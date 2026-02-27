@@ -222,10 +222,10 @@ export default function Profile() {
     <>
       <NavigationHeader
         showBack
-        backHref="/owner"
+        backHref="/tenant"
         title="My Profile"
         showProfile
-        avatarHref="/owner/profile/upload-photo"
+        avatarHref="/tenant/profile/upload-photo"
         profileData={{
           name: user.name,
           role: roleName,
@@ -235,12 +235,12 @@ export default function Profile() {
         }}
         tabs={["Profile", "Properties", "Documents", "Notifications", "Settings", "About"]}
         activeTab={tab.charAt(0).toUpperCase() + tab.slice(1)}
-        baseTabHref="/owner/profile"
+        baseTabHref="/tenant/profile"
       />
 
       {tab === "profile" && (
         <ProfileTab
-          viewDocumentHref="/owner/profile/document"
+          viewDocumentHref="/tenant/profile/document"
           data={{
             documentType: user.details?.document_type || "--",
             documentNumber: user.details?.document_number || "--",
@@ -283,7 +283,7 @@ export default function Profile() {
               label: "Change Password",
               icon: <FiLock size={20} />,
               type: "link",
-              href: "/owner/profile/change-password",
+              href: "/tenant/profile/change-password",
             },
             {
               key: "language",

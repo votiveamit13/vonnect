@@ -6,7 +6,7 @@ import { updateProfilePictureApi } from "@/lib/api";
 import { useDispatch } from "react-redux";
 import { getProfileThunk } from "@/store/slices/authSlice";
 import toast from "react-hot-toast";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 export default function UploadFile({
   subtitle,
@@ -16,6 +16,8 @@ export default function UploadFile({
   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
   const router = useRouter();
+  const pathname = usePathname();
+const roleSegment = pathname.split("/")[1]; 
 
   const isImage = accept.includes("image");
 
@@ -30,7 +32,7 @@ export default function UploadFile({
 
       toast.success("Profile picture updated");
 
-      router.replace("/owner/profile");
+      router.replace(`/${roleSegment}/profile`);
     } catch (err) {
       toast.error(err?.response?.data?.message || "Upload failed");
     } finally {

@@ -16,9 +16,10 @@ export default function Header({ showWelcomeCard }) {
   const router = useRouter();
   const UPLOAD_URL = process.env.NEXT_PUBLIC_UPLOAD_URL;
   const roleName = useSelector((s) => selectRoleName(s, user?.role_id));
+  const roleSegment = roleName?.toLowerCase();
   const buildingId = user?.assignments?.[0]?.building_id;
   const buildingName = useSelector((s) => selectBuildingName(s, buildingId));
-  
+
   useEffect(() => {
     if (!user && token) {
       dispatch(getProfileThunk());
@@ -59,7 +60,7 @@ export default function Header({ showWelcomeCard }) {
         </div>
 
         {showWelcomeCard && (
-          <Link href={`/owner/profile`} className="text-sm text-[#001F3F]">
+          <Link href={`/${roleSegment}/profile`} className="text-sm text-[#001F3F]">
             <div className="mt-2 sm:mt-4 rounded-2xl backdrop-blur-md px-4 sm:px-4 py-4 flex items-center gap-4 hover:bg-white/10">
               <div className="w-[44px] h-[44px] sm:w-[48px] sm:h-[48px] rounded-full bg-white flex items-center justify-center shrink-0 overflow-hidden">
                 {avatarUrl ? (
@@ -80,9 +81,11 @@ export default function Header({ showWelcomeCard }) {
                 <p className="text-[16px]">{user?.name || ""}</p>
                 <p className="text-[14px] text-white/80">
                   {roleName === "Administration" ? (
-                    <>Administrator - {buildingName || ""}</>
+                    <>Administrator - {buildingName || "Buidling Name"}</>
+                  ) : roleName === "Security" ? (
+                    <>Security - {buildingName || "Buidling Name"}</>
                   ) : (
-                    <>{user?.details?.unit_id || ""} - {buildingName || ""}</>
+                    <>{user?.details?.unit_id || "Unit"} - {buildingName || "Buidling Name"}</>
                   )}
                 </p>
               </div>

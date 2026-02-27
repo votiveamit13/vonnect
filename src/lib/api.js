@@ -57,3 +57,27 @@ export const getUserDocumentsApi = () => {
 export const updateLanguageApi = (language_code) => {
   return api.put("/language-update", { language_code });
 };
+
+export const getNotificationTypesApi = () => {
+  return api.get("/notification-types-list");
+};
+
+export const updateNotificationSettingApi = (payload) => {
+  return api.post("/notification-settings-update", payload);
+};
+
+export const getUserNotificationTypesApi = () => {
+  return api.get("/user-notification-types-list");
+};
+
+export const getAboutApi = () => {
+  return api.get("/about");
+}
+
+export const getAgreementApi = () => {
+  return api.get("/agreement");
+}
+
+export const getUserUnitsApi = () => {
+  return api.get("/user/units");
+};
