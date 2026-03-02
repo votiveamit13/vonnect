@@ -81,3 +81,16 @@ export const getAgreementApi = () => {
 export const getUserUnitsApi = () => {
   return api.get("/user/units");
 };
+
+export const getMemberPermissions = (roleId, userId) => {
+  return api.get(`/permissions`, {
+    params: {
+      role_id: roleId,
+      user_id: userId,
+    },
+  });
+};
+
+export const updateMemberPermission = (data) => {
+  return api.post('/assign/permissions', data);
+};

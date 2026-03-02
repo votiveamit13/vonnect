@@ -17,7 +17,7 @@ import { IoDocumentTextOutline } from "react-icons/io5";
 import { LuCar } from "react-icons/lu";
 import { MdOutlineShield } from "react-icons/md";
 
-export default function EditMemberPage() {
+export default function AddMemberPage() {
   const avatarRef = useRef(null);
   const [avatarPreview, setAvatarPreview] = useState(null);
 
@@ -101,32 +101,9 @@ export default function EditMemberPage() {
       <NavigationHeader
         showBack
         backHref="/administration/unit-management/101/member/1"
-        title="Edit Information"
-        subtitle="Carlos Rodriguez"
+        title="Add New Member"
+        subtitle="Unit 101"
       />
-
-      <div className="flex justify-center mt-5 pt-6">
-        <div
-          onClick={() => avatarRef.current.click()}
-          className="relative w-24 h-24 rounded-full bg-[#D1D5DB] flex items-center justify-center cursor-pointer overflow-hidden ring-4 ring-white shadow-[0_10px_30px_rgba(0,0,0,0.12)] hover:opacity-80"
-          style={{
-            border: "4px solid white",
-          }}
-        >
-          {avatarPreview ? (
-            <img src={avatarPreview} className="w-full h-full object-cover" />
-          ) : (
-            <FiUser size={36} className="text-[#6A7282]" />
-          )}
-          <input
-            ref={avatarRef}
-            type="file"
-            accept="image/*"
-            hidden
-            onChange={handleAvatarChange}
-          />
-        </div>
-      </div>
 
       <div className="px-4 mt-6 space-y-4 mx-auto"
         style={{
@@ -145,7 +122,6 @@ export default function EditMemberPage() {
                 Full Name <span className="text-[#E7000B]">*</span>
               </label>
               <input
-                placeholder="Carlos Rodriguez"
                 className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black placeholder:text-[#0A0A0A]/50" />
             </div>
 
@@ -153,7 +129,9 @@ export default function EditMemberPage() {
               <label className="block text-[12px] text-[#364153] mb-1">
                 Relationship <span className="text-[#E7000B]">*</span>
               </label>
-              <input className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black placeholder:text-[#0A0A0A]/50" />
+              <input
+                placeholder="e.g., Spouse, Child, Parent" 
+                className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black placeholder:text-[#0A0A0A]/50" />
             </div>
 
             <div>
@@ -284,7 +262,6 @@ export default function EditMemberPage() {
               <input type="date" className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black placeholder:text-[#0A0A0A]/50" />
             </div>
 
-            {/* DRIVER LICENSE DOCUMENT */}
             <div>
               <label className="block text-[12px] text-[#364153] mb-1">
                 Driver License Document
@@ -405,7 +382,6 @@ export default function EditMemberPage() {
                   {!v.doc ? (
                     <div className="flex items-center justify-start gap-4 border border-[#E5E7EB] rounded-[12px] px-4 h-[40px] bg-white">
 
-                      {/* Hidden Input */}
                       <input
                         type="file"
                         hidden
@@ -415,7 +391,6 @@ export default function EditMemberPage() {
                         }
                       />
 
-                      {/* Blue Pill Button */}
                       <button
                         type="button"
                         onClick={() =>
@@ -435,7 +410,6 @@ export default function EditMemberPage() {
                         Choose File
                       </button>
 
-                      {/* Placeholder Text */}
                       <span className="text-[13px] text-[#6B7280]">
                         No file chosen
                       </span>
@@ -465,6 +439,32 @@ export default function EditMemberPage() {
 
               </div>
             ))}
+          </div>
+        </div>
+
+        <div className="bg-gradient-to-b from-[#F9FAFB] to-[#FFFFFF] border border-[#E5E7EB] rounded-[16px] shadow-sm">
+          <div className="px-4 py-3 flex items-center gap-2 text-[14px] text-[#001F3F]">
+            <FiUser size={16} /> Create User Account
+          </div>
+
+          <div className="px-4 pb-4 pt-0 space-y-3">
+            <div>
+              <label className="block text-[12px] text-[#364153] mb-1">
+                Username
+              </label>
+              <input
+                placeholder="Enter username for member login"
+                className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black placeholder:text-[#0A0A0A]/50" />
+            </div>
+
+            <div>
+              <label className="block text-[12px] text-[#364153] mb-1">
+                Password
+              </label>
+              <input
+                placeholder="Enter password for member login" 
+                className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black placeholder:text-[#0A0A0A]/50" />
+            </div>
           </div>
         </div>
 

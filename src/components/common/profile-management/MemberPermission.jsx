@@ -4,6 +4,7 @@ export default function MemberPermissions({
     name,
     relationship,
     permissions = [],
+  onToggle,
 }) {
     return (
         <div className="px-4 sm:px-6 mt-4 pb-10">
@@ -28,9 +29,9 @@ export default function MemberPermissions({
                 </div>
 
                 <div>
-                    {permissions.map((p, i) => (
-                        <div
-                            key={i}
+                    {permissions.map((p) => (
+            <div
+              key={p.id}
                             className="flex items-center justify-between px-5 py-4 border-b-2 border-[#E5E5E5]"
                         >
                             <div className="flex items-center gap-3">
@@ -45,15 +46,18 @@ export default function MemberPermissions({
                                 </div>
                             </div>
 
-                            <span
-                                className={`w-[44px] h-[24px] rounded-full relative ${p.enabled ? "bg-[#001F3F]" : "bg-[#E5E7EB]"
-                                    }`}
-                            >
-                                <span
-                                    className={`absolute top-[4px] left-[4px] w-[16px] h-[16px] bg-white rounded-full transition ${p.enabled ? "translate-x-5" : ""
-                                        }`}
-                                />
-                            </span>
+                            <button
+                onClick={() => onToggle(p)}
+                className={`w-[44px] h-[24px] rounded-full relative transition ${
+                  p.enabled ? "bg-[#001F3F]" : "bg-[#E5E7EB]"
+                }`}
+              >
+                <span
+                  className={`absolute top-[4px] left-[4px] w-[16px] h-[16px] bg-white rounded-full transition ${
+                    p.enabled ? "translate-x-5" : ""
+                  }`}
+                />
+              </button>
                         </div>
                     ))}
                 </div>
