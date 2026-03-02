@@ -114,7 +114,7 @@ export default function MemberPermissionsPage() {
     <main className="min-h-screen w-full bg-[#F5F7FA]">
       <NavigationHeader
         showBack
-        backHref={`/owner/profile/${unitId}/manage-unit`}
+        backHref={`/owner/profile/${unitid}/manage-unit`}
         title={member.full_name}
         subtitle="Manage permissions"
       />
