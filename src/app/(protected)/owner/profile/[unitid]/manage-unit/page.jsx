@@ -10,64 +10,100 @@ import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
 
 export default function ManageUnit() {
-  const { unitId } = useParams();
+  const params = useParams();
+  const unitid = params.unitid; // Use lowercase 'unitid' to match folder name
+  
+  console.log("ManageUnit - unitid from params:", unitid);
 
   const [unit, setUnit] = useState(null);
   const [loading, setLoading] = useState(true);
-const assignments = useSelector((s) => s.units.assignments);
+  const [familyMembers, setFamilyMembers] = useState([]);
 
-useEffect(() => {
-  const loadUnit = async () => {
-    if (!unitId) return;
-
-    let data = assignments;
-
-    if (!data.length) {
-      try {
-        const res = await getUserUnitsApi();
-        data = res.data?.data || [];
-        dispatch(setUnits(data));
-      } catch (err) {
-        toast.error("Failed to load units");
-        setLoading(false);
-        return;
-      }
-    }
-
-    const found = data.find(
-      (a) => Number(a.Unit.id) === Number(unitId)
-    );
-
-    if (!found) {
-      toast.error("Unit not found");
-      setLoading(false);
+  useEffect(() => {
+    console.log("ManageUnit - useEffect running with unitid:", unitid);
+    
+    if (!unitid) {
+      console.log("ManageUnit - No unitid provided");
       return;
     }
 
-    setUnit(found);
-    setLoading(false);
-  };
+    const fetchUnit = async () => {
+      console.log("ManageUnit - Fetching unit with ID:", unitid);
+      setLoading(true);
 
-  loadUnit();
-}, [unitId, assignments]);
+      try {
+        const res = await getUserUnitsApi();
+        console.log("ManageUnit - API response:", res.data);
+        
+        const assignments = res.data?.data || [];
+        console.log("ManageUnit - Assignments:", assignments);
+
+        // Find the assignment that contains our unit
+        const foundAssignment = assignments.find(
+          (a) => {
+            console.log("Comparing:", Number(a.Unit.id), "vs", Number(unitid));
+            return Number(a.Unit.id) === Number(unitid);
+          }
+        );
+
+        console.log("ManageUnit - Found assignment:", foundAssignment);
+
+        if (!foundAssignment) {
+          console.log("ManageUnit - Unit not found in assignments");
+          toast.error("Unit not found");
+          setUnit(null);
+          setFamilyMembers([]);
+          return;
+        }
+
+        // Set the unit data
+        console.log("ManageUnit - Setting unit data:", foundAssignment.Unit);
+        setUnit(foundAssignment.Unit);
+        
+        // Set family members from the Unit object
+        console.log("ManageUnit - Family members:", foundAssignment.Unit.family_members);
+        setFamilyMembers(foundAssignment.Unit.family_members || []);
+
+      } catch (err) {
+        console.error("ManageUnit - Error:", err);
+        toast.error("Failed to load unit");
+        setUnit(null);
+        setFamilyMembers([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUnit();
+  }, [unitid]);
 
   if (loading) return <Loader text="Loading unit..." size="md" />;
 
-  if (!unit) return null;
+  if (!unit) {
+    return (
+      <div className="p-6 text-center text-gray-500">
+        Unit not available.
+      </div>
+    );
+  }
+
+  console.log("ManageUnit - Rendering with members:", familyMembers);
+
+  console.log("ManageUnit - Rendering with members:", familyMembers); // Add this log
 
   return (
     <main className="min-h-screen w-full bg-[#F5F7FA]">
       <NavigationHeader
         showBack
         backHref="/owner/profile?tab=properties"
-        title={`Manage Unit ${unit.Unit.unit_number}`}
-        subtitle={unit.Unit.building?.name}
+        title={`Manage Unit ${unit.unit_number}`}
+        subtitle={unit.building?.name}
       />
 
       <ManageUnitView
-        unitId={unit.Unit.id}
+        unitId={unit.id}
         title="Family Members"
-        members={unit.Unit.family_members.map((m) => ({
+        members={familyMembers.map((m) => ({
           id: m.id,
           name: m.full_name,
           role: m.relationship,

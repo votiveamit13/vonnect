@@ -19,11 +19,10 @@ export default function ManageUnitView({
         <div>
           {members.map((m, i) => (
             <Link
-              key={i}
+              key={m.id}
               href={`/owner/profile/${unitId}/manage-unit/${m.id}`}
-              className={`flex items-center justify-between px-5 py-4 ${
-                i !== members.length - 1 ? "border-b border-[#E5E7EB]" : ""
-              }`}
+              className={`flex items-center justify-between px-5 py-4 ${i !== members.length - 1 ? "border-b border-[#E5E7EB]" : ""
+                }`}
             >
               <div className="flex items-center gap-3">
                 <FiUser className="text-[#9CA3AF]" size={20} />

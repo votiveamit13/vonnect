@@ -20,8 +20,20 @@ export default function UnitManagementPage() {
   ];
 
   const residences = [
-    { id: 1, title: "Amenities", subtitle: "View residence amenities", icon: LuBuilding2 },
-    { id: 2, title: "Documentation", subtitle: "View residence documents", icon: FiFileText },
+    { 
+      id: 1, 
+      title: "Amenities", 
+      subtitle: "View residence amenities", 
+      icon: LuBuilding2,
+      link: "/administration/unit-management/amenities",
+    },
+    { 
+      id: 2, 
+      title: "Documentation", 
+      subtitle: "View residence documents", 
+      icon: FiFileText,
+      link: "/administration/unit-management/documentation",
+    },
   ];
 
   const filteredUnits =
@@ -61,8 +73,6 @@ export default function UnitManagementPage() {
         </div>
       </div>
 
-      {/* Filter */}
-      {/* Filter */}
       {activeTab === "unit" && (
         <div className="px-4 mt-4">
           <div className="relative w-full">
@@ -113,7 +123,6 @@ export default function UnitManagementPage() {
         </div>
       )}
 
-      {/* List */}
       <div className="px-4 mt-4 space-y-3 pb-10">
         {activeTab === "unit" &&
           filteredUnits.map((unit) => (
@@ -139,7 +148,7 @@ export default function UnitManagementPage() {
           residences.map((item) => (
             <Link
               key={item.id}
-              href={`/administration/residence/${item.id}`}
+              href={`${item.link}`}
               className="bg-white rounded-[10px] shadow-sm px-4 py-4 flex items-center justify-between border border-[#eff0f1] hover:shadow-md transition"
             >
               <div className="flex items-center gap-3">
