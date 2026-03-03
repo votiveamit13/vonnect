@@ -31,3 +31,11 @@ export const getBuildingWiseUsers = ({ buildingId, page = 1, limit = 10 } = {}) 
 export const verifyUserApi = ({ user_id, status }) => {
   return api.post("/user-verification", { user_id, status });
 };
+
+export const getUnitsApi = (params) => {
+  return api.get("/units", { params });
+};
+
+export const assignUserToUnitApi = (data) => {
+  return api.post("/unit/assign-user", data);
+};
