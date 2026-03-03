@@ -50,6 +50,7 @@ import Link from "next/link";
 import { LuBuilding2 } from "react-icons/lu";
 import { getAssociatedBuildings } from "@/lib/api";
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 export default function SelectBuildingPage() {
   const router = useRouter();
