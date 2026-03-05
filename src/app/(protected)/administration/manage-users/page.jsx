@@ -3,8 +3,15 @@
 import { useEffect, useState } from "react";
 import NavigationHeader from "@/components/common/NavigationHeader";
 import { FiUser, FiMail, FiPhone, FiHome, FiHash } from "react-icons/fi";
-import { getBuildingWiseUsers, verifyUserApi } from "@/lib/administrator";
+import {
+  getBuildingWiseUsers,
+  verifyUserApi,
+  getUnitsApi,
+  assignUserToUnitApi,
+} from "@/lib/administrator";
 import toast from "react-hot-toast";
+import Pagination from "@/components/Pagination";
+import { useSelector } from "react-redux";
 
 export default function ManageUsers() {
   const [users, setUsers] = useState([]);
@@ -12,11 +19,21 @@ export default function ManageUsers() {
   const [page, setPage] = useState(1);
   const [pagination, setPagination] = useState(null);
   const [processingId, setProcessingId] = useState(null);
+  const roles = useSelector((state) => state.lookup.roles);
+
+  const [unitsByBuilding, setUnitsByBuilding] = useState({});
+  const [assignedUsers, setAssignedUsers] = useState({});
+  const OWNER_ROLE_ID = 2;
+  const TENANT_ROLE_ID = 3;
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const match = document.cookie.match(new RegExp("(^| )buildingId=([^;]+)"));
+        setLoading(true);
+
+        const match = document.cookie.match(
+          new RegExp("(^| )buildingId=([^;]+)")
+        );
         const buildingId = match ? match[2] : null;
 
         if (!buildingId) {
@@ -24,10 +41,14 @@ export default function ManageUsers() {
           return;
         }
 
-        const res = await getBuildingWiseUsers({ buildingId, page, limit: 10 });
-        setPagination(res.data.pagination);
+        const res = await getBuildingWiseUsers({
+          buildingId,
+          page,
+          limit: 10,
+        });
 
         const apiUsers = res.data?.data || [];
+        setPagination(res.data.pagination);
 
         const normalized = apiUsers.map((item) => ({
           id: item.user?.id,
@@ -36,10 +57,32 @@ export default function ManageUsers() {
           mobile: item.user?.details?.phone || "--",
           idNumber: item.user?.details?.id_number || "--",
           building: item.building?.name || "--",
+          buildingId: item.building?.id,
+          roleId: Number(item.user?.role_id),
           isActive: item.user?.is_active ?? false,
         }));
 
         setUsers(normalized);
+
+        // 🔥 Fetch units for unique buildings
+        const uniqueBuildings = [
+          ...new Set(normalized.map((u) => u.buildingId).filter(Boolean)),
+        ];
+
+        for (const bId of uniqueBuildings) {
+          if (!unitsByBuilding[bId]) {
+            const unitsRes = await getUnitsApi({
+              building_id: bId,
+              page: 1,
+              limit: 100,
+            });
+
+            setUnitsByBuilding((prev) => ({
+              ...prev,
+              [bId]: unitsRes.data?.data || [],
+            }));
+          }
+        }
       } catch (err) {
         console.error(err);
         toast.error("Failed to load users");
@@ -51,19 +94,56 @@ export default function ManageUsers() {
     fetchUsers();
   }, [page]);
 
+  const getRoleName = (roleId) => {
+    const role = roles.find((r) => Number(r.id) === Number(roleId));
+    return role?.name || "--";
+  };
+
+  const handleAssignUnit = async (user, unitId) => {
+    try {
+      setProcessingId(user.id);
+
+      const isOwner = user.roleId === OWNER_ROLE_ID;
+      const isTenant = user.roleId === TENANT_ROLE_ID;
+
+      await assignUserToUnitApi({
+        user_id: user.id,
+        unit_id: unitId,
+        is_owner: isOwner,
+        is_member: isOwner,   // owner = true, tenant = false
+        role_id: user.roleId,
+      });
+
+      setAssignedUsers((prev) => ({
+        ...prev,
+        [user.id]: true,
+      }));
+
+      toast.success("Unit assigned successfully");
+    } catch (err) {
+      console.error(err);
+      toast.error(
+        err?.response?.data?.message || "Failed to assign unit"
+      );
+    } finally {
+      setProcessingId(null);
+    }
+  };
+
   const handleApprove = async (id) => {
     try {
       setProcessingId(id);
 
-      setUsers((prev) => prev.filter((u) => u.id !== id));
-
       await verifyUserApi({ user_id: id, status: 1 });
+
+      setUsers((prev) => prev.filter((u) => u.id !== id));
 
       toast.success("User approved & verification email sent");
     } catch (err) {
       console.error(err);
-      toast.error(err?.response?.data?.message || "Failed to approve user");
-      refetchUsers?.();
+      toast.error(
+        err?.response?.data?.message || "Failed to approve user"
+      );
     } finally {
       setProcessingId(null);
     }
@@ -73,15 +153,16 @@ export default function ManageUsers() {
     try {
       setProcessingId(id);
 
-      setUsers((prev) => prev.filter((u) => u.id !== id));
-
       await verifyUserApi({ user_id: id, status: 2 });
+
+      setUsers((prev) => prev.filter((u) => u.id !== id));
 
       toast.success("User rejected successfully");
     } catch (err) {
       console.error(err);
-      toast.error(err?.response?.data?.message || "Failed to reject user");
-      refetchUsers?.();
+      toast.error(
+        err?.response?.data?.message || "Failed to reject user"
+      );
     } finally {
       setProcessingId(null);
     }
@@ -115,6 +196,13 @@ export default function ManageUsers() {
                 </div>
 
                 <div>
+                  <p className="text-[#6A7282]">User Type</p>
+                  <p className="text-[#001F3F] font-medium flex items-center gap-2">
+                    <FiUser /> {getRoleName(user.roleId)}
+                  </p>
+                </div>
+
+                <div>
                   <p className="text-[#6A7282]">Email</p>
                   <p className="text-[#001F3F] font-medium flex items-center gap-2">
                     <FiMail /> {user.email}
@@ -134,20 +222,56 @@ export default function ManageUsers() {
                     <FiPhone /> {user.mobile}
                   </p>
                 </div>
+
+                {(user.roleId === OWNER_ROLE_ID ||
+                  user.roleId === TENANT_ROLE_ID) && (
+                    <div className="pb-3">
+                      <select
+                        disabled={assignedUsers[user.id]}
+                        onChange={(e) =>
+                          handleAssignUnit(user, e.target.value)
+                        }
+                        className="w-full h-10 rounded-lg border border-[#E5E7EB] px-3 text-sm"
+                      >
+                        <option value="">
+                          {assignedUsers[user.id]
+                            ? "Unit Assigned"
+                            : "Assign Unit"}
+                        </option>
+
+                        {unitsByBuilding[user.buildingId]?.map((unit) => (
+                          <option key={unit.id} value={unit.id}>
+                            Unit {unit.unit_number}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
               </div>
 
               <div className="px-4 pb-4 flex gap-3">
                 <button
-                  disabled={processingId === user.id || user.isActive}
+                  disabled={
+                    processingId === user.id ||
+                    (
+                      (user.roleId === OWNER_ROLE_ID ||
+                        user.roleId === TENANT_ROLE_ID) &&
+                      assignedUsers[user.id] !== true
+                    )
+                  }
                   onClick={() => handleApprove(user.id)}
                   className={`flex-1 h-10 rounded-lg text-sm transition
-                    ${user.isActive
+    ${(user.roleId === OWNER_ROLE_ID ||
+                      user.roleId === TENANT_ROLE_ID) &&
+                      assignedUsers[user.id] !== true
                       ? "bg-gray-300 text-gray-600 cursor-not-allowed"
-                      : "bg-[#001F3F] text-white hover:opacity-90"}
-                    ${processingId === user.id ? "opacity-70 cursor-wait" : ""}
-                  `}
+                      : "bg-[#001F3F] text-white hover:opacity-90"
+                    }
+    ${processingId === user.id ? "opacity-70 cursor-wait" : ""}
+  `}
                 >
-                  {user.isActive ? "Approved" : processingId === user.id ? "Approving..." : "Approve"}
+                  {processingId === user.id ? "Approving..." : "Approve"}
                 </button>
 
                 <button
@@ -166,29 +290,11 @@ export default function ManageUsers() {
           ))
         )}
 
-        {pagination && (
-          <div className="flex items-center justify-center gap-4 mt-6">
-            <button
-              disabled={page <= 1}
-              onClick={() => setPage((p) => p - 1)}
-              className="px-4 py-2 border rounded disabled:opacity-50"
-            >
-              Prev
-            </button>
-
-            <span className="text-sm">
-              Page {pagination.current_page} of {pagination.total_pages}
-            </span>
-
-            <button
-              disabled={page >= pagination.total_pages}
-              onClick={() => setPage((p) => p + 1)}
-              className="px-4 py-2 border rounded disabled:opacity-50"
-            >
-              Next
-            </button>
-          </div>
-        )}
+        <Pagination
+          currentPage={pagination?.current_page}
+          totalPages={pagination?.total_pages}
+          onPageChange={(newPage) => setPage(newPage)}
+        />
       </div>
     </main>
   );
