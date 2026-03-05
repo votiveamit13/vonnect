@@ -50,7 +50,6 @@ import Link from "next/link";
 import { LuBuilding2 } from "react-icons/lu";
 import { getAssociatedBuildings } from "@/lib/api";
 import { useEffect, useState } from "react";
-import toast from "react-hot-toast";
 
 export default function SelectBuildingPage() {
   const router = useRouter();
@@ -64,14 +63,20 @@ export default function SelectBuildingPage() {
 
         const list = res.data?.data || [];
 
-        const normalized = list.map((item) => ({
-          id: item.building.id,
-          name: item.building.name,
+        // const normalized = list.map((item) => ({
+        //   id: item.building.id,
+        //   name: item.building.name,
+        // }));
+
+        const normalized = list
+          .filter((item) => item?.building?.id)
+          .map((item) => ({
+            id: item.building.id,
+            name: item.building.name,
         }));
 
         setBuildings(normalized);
       } catch (err) {
-        toast.error("Failed to load buildings");
         console.error(err);
       } finally {
         setLoading(false);
@@ -85,7 +90,6 @@ export default function SelectBuildingPage() {
     const role = localStorage.getItem("role");
 
     if (!role) {
-      toast.error("Role missing, please login again");
       router.replace("/");
       return;
     }

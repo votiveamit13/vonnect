@@ -195,6 +195,11 @@ export default function Profile() {
     fetchNotifications();
   }, [tab]);
 
+  const unitNumbers = normalizedUnits
+  ?.map((u) => u.unitNumber)
+  ?.filter(Boolean)
+  ?.join(", ");
+
   useEffect(() => {
     if (tab !== "about") return;
 
@@ -229,7 +234,7 @@ export default function Profile() {
         profileData={{
           name: user.name,
           role: roleName,
-          unit: `${user.details.unit_id || "Unit"}`,
+          unit: unitNumbers,
           property: buildingName,
           image: avatarUrl,
         }}

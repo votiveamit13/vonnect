@@ -5,26 +5,101 @@ import NavigationHeader from "@/components/common/NavigationHeader";
 import Tabs from "@/components/common/Tabs";
 import FloatingActionButton from "@/components/FloatingButton";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FaPlus } from "react-icons/fa";
 import { FiHome, FiUser, FiCheckCircle, FiChevronRight, FiPlus, FiFileText, FiDownload } from "react-icons/fi";
 import { LuBuilding2, LuCar } from "react-icons/lu";
 import { RiDeleteBinLine } from "react-icons/ri";
+import { useParams } from "next/navigation";
+import { getUnitDetailsApi, getUnitFamilyMembersApi } from "@/lib/administrator";
+import Loader from "@/components/Loader";
+import { useSelector } from "react-redux";
 
 export default function UnitDetailsPage() {
+    const params = useParams();
+    const unitId = params.unitId;
+    const [unit, setUnit] = useState(null);
+    const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState("unit");
     const [showUploadModal, setShowUploadModal] = useState(false);
     const [docName, setDocName] = useState("");
     const [file, setFile] = useState(null);
     const [documents, setDocuments] = useState([]);
+    const buildings = useSelector((state) => state.lookup.buildings);
+    const [familyMembers, setFamilyMembers] = useState([]);
+    const [loadingFamily, setLoadingFamily] = useState(false);
 
+    const getBuildingName = (buildingId) => {
+        return (
+            buildings?.find((b) => String(b.id) === String(buildingId))?.name || "--"
+        );
+    };
+
+    useEffect(() => {
+        const fetchUnitDetails = async () => {
+            try {
+                setLoading(true);
+
+                const res = await getUnitDetailsApi(unitId);
+
+                setUnit(res.data?.data || null);
+            } catch (err) {
+                console.error(err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (unitId) {
+            fetchUnitDetails();
+        }
+    }, [unitId]);
+
+    const occupancyLabel = unit?.occupaycy_status ? "Occupied" : "Vacant";
+
+    const maintenanceLabel =
+        unit?.maintenance_fee_status === "paid" ? "Paid" : "Pending";
+
+    const maintenanceColor =
+        unit?.maintenance_fee_status === "paid"
+            ? "bg-[#DCFCE7] text-[#016630]"
+            : "bg-[#FEF3C7] text-[#92400E]";
+
+
+    const fetchFamilyMembers = async () => {
+        try {
+            setLoadingFamily(true);
+
+            const res = await getUnitFamilyMembersApi(unitId);
+
+            setFamilyMembers(res.data?.data || []);
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setLoadingFamily(false);
+        }
+    };
+
+    useEffect(() => {
+        if (activeTab === "family" && unitId) {
+            fetchFamilyMembers();
+        }
+    }, [activeTab, unitId]);
+
+    if (loading) {
+        return (
+            <main className="min-h-screen flex items-center justify-center bg-[#F5F7FA]">
+                <Loader text="Loading Unit Details..." size="md" />
+            </main>
+        );
+    }
     return (
         <main className="min-h-screen bg-[#F5F7FA]">
             <NavigationHeader
                 showBack
                 backHref="/administration/unit-management"
-                title="Unit 101"
-                subtitle="Building A"
+                title={`${unit?.unit_number}`}
+                subtitle={unit?.building?.name || "Building A"}
             />
 
             <Tabs
@@ -40,7 +115,7 @@ export default function UnitDetailsPage() {
 
             {activeTab === "unit" && (
                 <InfoCard
-                    title="Residential Unit"
+                    title={unit?.unit_type || "Residential Unit"}
                     icon={<LuBuilding2 size={16} />}
                     footer={
                         <div className="pt-3 border-t border-[#EFF0F1] space-y-4">
@@ -49,7 +124,7 @@ export default function UnitDetailsPage() {
                                 <div className="flex items-center gap-2">
                                     <FiUser size={16} className="text-[#0A0A0A]" />
                                     <span className="px-2 py-[6px] text-[12px] rounded-[4px] bg-[#DBEAFE] text-[#193CB8]">
-                                        Owner Occupied
+                                        {occupancyLabel}
                                     </span>
                                 </div>
                             </div>
@@ -58,8 +133,8 @@ export default function UnitDetailsPage() {
                                 <p className="text-[#4A5565] text-[12px] mb-1">Maintenance Fee Status</p>
                                 <div className="flex items-center gap-2">
                                     <FiCheckCircle size={16} className="text-[#0A0A0A]" />
-                                    <span className="px-2 py-[6px] text-[12px] rounded-[4px] bg-[#DCFCE7] text-[#016630]">
-                                        Paid
+                                    <span className={`px-2 py-[6px] text-[12px] rounded-[4px] ${maintenanceColor}`}>
+                                        {maintenanceLabel}
                                     </span>
                                 </div>
                             </div>
@@ -69,148 +144,154 @@ export default function UnitDetailsPage() {
                     <div className="grid grid-cols-1 gap-4">
                         <div>
                             <p className="text-[#4A5565] text-[12px]">Unit Type</p>
-                            <p className="text-[#001F3F] text-[14px]">Residential Unit</p>
+                            <p className="text-[#001F3F] text-[14px]">{unit?.unit_type || "Residential Unit"}</p>
                         </div>
 
                         <div>
                             <p className="text-[#4A5565] text-[12px]">Building</p>
-                            <p className="text-[#001F3F] text-[14px]">Building A</p>
+                            <p className="text-[#001F3F] text-[14px]">{unit?.building?.name || "--"}</p>
                         </div>
 
                         <div>
                             <p className="text-[#4A5565] text-[12px]">Square Meters</p>
-                            <p className="text-[#001F3F] text-[14px]">120 m²</p>
+                            <p className="text-[#001F3F] text-[14px]">{unit?.square_meters || "--"} m²</p>
                         </div>
 
                         <div>
                             <p className="text-[#4A5565] text-[12px]">Coefficient</p>
-                            <p className="text-[#001F3F] text-[14px]">2.50%</p>
+                            <p className="text-[#001F3F] text-[14px]">{unit?.coefficient ? `${unit.coefficient}%` : "--"}</p>
                         </div>
                     </div>
                 </InfoCard>
             )}
 
             {activeTab === "parking" && (
-                <InfoCard
-                    title="Parking Space"
-                    icon={<LuCar size={16} />}
-                    footer={
-                        <div className="pt-3 border-t border-[#EFF0F1] space-y-4">
-                            {/* Occupancy */}
-                            <div>
-                                <p className="text-[#4A5565] text-[12px] mb-1">Occupancy Status</p>
-                                <div className="flex items-center gap-2">
-                                    <FiUser size={16} className="text-[#0A0A0A]" />
-                                    <span className="px-2 py-[6px] text-[12px] rounded-[4px] bg-[#DBEAFE] text-[#193CB8]">
-                                        Owner Occupied
-                                    </span>
+                <div className="mt-4 space-y-4">
+                    {unit?.complementary_units?.length === 0 && (
+                        <p className="text-center text-sm text-[#6A7282]">
+                            No parking or complementary units found
+                        </p>
+                    )}
+
+                    {unit?.complementary_units?.map((item) => (
+                        <InfoCard
+                            key={item.id}
+                            title={item.title || item.unit_type}
+                            icon={<LuCar size={16} />}
+                            footer={
+                                <div className="pt-3 border-t border-[#EFF0F1] space-y-4">
+                                    <div>
+                                        <p className="text-[#4A5565] text-[12px] mb-1">Occupancy Status</p>
+                                        <div className="flex items-center gap-2">
+                                            <FiUser size={16} className="text-[#0A0A0A]" />
+                                            <span className="px-2 py-[6px] text-[12px] rounded-[4px] bg-[#DBEAFE] text-[#193CB8]">
+                                                {item.occupaycy_status ? "Occupied" : "Vacant"}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <p className="text-[#4A5565] text-[12px] mb-1">Maintenance Fee Status</p>
+                                        <div className="flex items-center gap-2">
+                                            <FiCheckCircle size={16} className="text-[#0A0A0A]" />
+                                            <span className={`px-2 py-[6px] text-[12px] rounded-[4px] ${item.maintenance_fee_status === "paid"
+                                                ? "bg-[#DCFCE7] text-[#016630]"
+                                                : "bg-[#FEF3C7] text-[#92400E]"
+                                                }`}
+                                            >
+                                                {item.maintenance_fee_status === "paid" ? "Paid" : "Pending"}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        >
+                            <div className="grid grid-cols-1 gap-4">
+                                <div>
+                                    <p className="text-[#4A5565] text-[12px]">Unit Type</p>
+                                    <p className="text-[#001F3F] text-[14px]">{item.unit_number}</p>
+                                </div>
+
+                                <div>
+                                    <p className="text-[#4A5565] text-[12px]">Building</p>
+                                    <p className="text-[#001F3F] text-[14px]">{getBuildingName(item.building_id)}</p>
+                                </div>
+
+                                <div>
+                                    <p className="text-[#4A5565] text-[12px]">Square Meters</p>
+                                    <p className="text-[#001F3F] text-[14px]">{item.square_meters} m²</p>
+                                </div>
+
+                                <div>
+                                    <p className="text-[#4A5565] text-[12px]">Coefficient</p>
+                                    <p className="text-[#001F3F] text-[14px]">{item.coefficient}%</p>
                                 </div>
                             </div>
-
-                            {/* Maintenance */}
-                            <div>
-                                <p className="text-[#4A5565] text-[12px] mb-1">Maintenance Fee Status</p>
-                                <div className="flex items-center gap-2">
-                                    <FiCheckCircle size={16} className="text-[#0A0A0A]" />
-                                    <span className="px-2 py-[6px] text-[12px] rounded-[4px] bg-[#DCFCE7] text-[#016630]">
-                                        Paid
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    }
-                >
-                    <div className="grid grid-cols-1 gap-4">
-                        <div>
-                            <p className="text-[#4A5565] text-[12px]">Unit Type</p>
-                            <p className="text-[#001F3F] text-[14px]">Parking Space</p>
-                        </div>
-
-                        <div>
-                            <p className="text-[#4A5565] text-[12px]">Building</p>
-                            <p className="text-[#001F3F] text-[14px]">Building A</p>
-                        </div>
-
-                        <div>
-                            <p className="text-[#4A5565] text-[12px]">Square Meters</p>
-                            <p className="text-[#001F3F] text-[14px]">12.5 m²</p>
-                        </div>
-
-                        <div>
-                            <p className="text-[#4A5565] text-[12px]">Coefficient</p>
-                            <p className="text-[#001F3F] text-[14px]">0.80%</p>
-                        </div>
-                    </div>
-                </InfoCard>
+                        </InfoCard>
+                    ))}
+                </div>
             )}
 
             {activeTab === "family" && (
                 <div className="px-4 mt-4 pb-28 space-y-4">
-                    {[
-                        {
-                            id: 1,
-                            name: "Carlos Rodriguez",
-                            document: "Passport - P123456789",
-                            phone: "+1 234 567 8901",
-                            email: "carlos.rodriguez@email.com",
-                            mainOwner: true,
-                        },
-                        {
-                            id: 2,
-                            name: "Maria Rodriguez",
-                            document: "National ID - ID987654321",
-                            phone: "+1 234 567 8902",
-                            email: "maria.rodriguez@email.com",
-                            mainOwner: false,
-                        },
-                    ].map((member) => (
+                    {loadingFamily && (
+                        <Loader text="Loading family members..." size="md" />
+                    )}
+
+                    {!loadingFamily && familyMembers.length === 0 && (
+                        <p className="text-center text-sm text-[#6A7282]">
+                            No family members found
+                        </p>
+                    )}
+
+                    {familyMembers.map((member) => (
                         <Link
-        key={member.id}
-        href={`/administration/unit-management/101/member/${member.id}`}
-        className="block"
-      >
-                        <div
                             key={member.id}
-                            className="bg-white rounded-[10px] shadow-sm overflow-hidden border border-[#eff0f1] hover:shadow-md transition"
+                            href={`/administration/unit-management/${unitId}/member/${member.id}`}
+                            className="block"
                         >
-                            <div className="flex items-center justify-between px-4 py-3 bg-[#001F3F] text-white text-[14px]">
-                                <div className="flex items-center gap-2">
-                                    <FiUser size={16} />
-                                    {member.name}
-                                </div>
-                                <FiChevronRight size={16} />
-                            </div>
-
-                            <div className="p-4 space-y-3 text-[14px]">
-                                <div>
-                                    <p className="text-[#4A5565] text-[12px]">Document</p>
-                                    <p className="text-[#364153] text-[14px]">{member.document}</p>
+                            <div
+                                key={member.id}
+                                className="bg-white rounded-[10px] shadow-sm overflow-hidden border border-[#eff0f1] hover:shadow-md transition"
+                            >
+                                <div className="flex items-center justify-between px-4 py-3 bg-[#001F3F] text-white text-[14px]">
+                                    <div className="flex items-center gap-2">
+                                        <FiUser size={16} />
+                                        {member.full_name}
+                                    </div>
+                                    <FiChevronRight size={16} />
                                 </div>
 
-                                <div>
-                                    <p className="text-[#4A5565] text-[12px]">Phone</p>
-                                    <p className="text-[#364153] text-[14px]">{member.phone}</p>
-                                </div>
+                                <div className="p-4 space-y-3 text-[14px]">
+                                    <div>
+                                        <p className="text-[#4A5565] text-[12px]">Document</p>
+                                        <p className="text-[#364153] text-[14px]">{member.document_type} - {member.document_number}</p>
+                                    </div>
 
-                                <div>
-                                    <p className="text-[#4A5565] text-[12px]">Email</p>
-                                    <p className="text-[#364153] text-[14px]">{member.email}</p>
-                                </div>
+                                    <div>
+                                        <p className="text-[#4A5565] text-[12px]">Phone</p>
+                                        <p className="text-[#364153] text-[14px]">{member.phone}</p>
+                                    </div>
 
-                                <div className="pt-3 flex items-center justify-end gap-2">
-                                    <span className="text-[12px] text-[#6A7282]">Main Owner</span>
-                                    <div
-                                        className={`w-9 h-5 rounded-full p-[2px] transition ${member.mainOwner ? "bg-[#001F3F]" : "bg-[#CBD5E1]"
-                                            }`}
-                                    >
+                                    <div>
+                                        <p className="text-[#4A5565] text-[12px]">Email</p>
+                                        <p className="text-[#364153] text-[14px]">{member.email}</p>
+                                    </div>
+
+                                    <div className="pt-3 flex items-center justify-end gap-2">
+                                        <span className="text-[12px] text-[#6A7282]">Main Owner</span>
                                         <div
-                                            className={`w-4 h-4 bg-white rounded-full transition ${member.mainOwner ? "translate-x-4" : ""
+                                            className={`w-9 h-5 rounded-full p-[2px] transition ${member.is_owner ? "bg-[#001F3F]" : "bg-[#CBD5E1]"
                                                 }`}
-                                        />
+                                        >
+                                            <div
+                                                className={`w-4 h-4 bg-white rounded-full transition ${member.is_owner ? "translate-x-4" : ""
+                                                    }`}
+                                            />
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
                         </Link>
                     ))}
 
@@ -251,10 +332,10 @@ export default function UnitDetailsPage() {
 
                                         <div className="flex items-center gap-3">
                                             <button className="text-[#001F3F] hover:scale-110 transition">
-                                                <FiDownload size={16}/>
+                                                <FiDownload size={16} />
                                             </button>
                                             <button className="text-[#E7000B] hover:scale-110 transition">
-                                                <RiDeleteBinLine size={16}/>
+                                                <RiDeleteBinLine size={16} />
                                             </button>
                                         </div>
                                     </div>

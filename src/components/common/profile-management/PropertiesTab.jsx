@@ -27,7 +27,7 @@ export default function PropertiesTab({ properties = [], loading }) {
             className="bg-white rounded-[16px] shadow-[0_10px_20px_-10px_rgba(0,0,0,0.25)] overflow-hidden"
           >
             <div className="bg-[#001F3F] text-white px-5 py-3 rounded-t-[16px]">
-              <p className="text-[12px]">Unit {unit.unitNumber}</p>
+              <p className="text-[12px]">{unit.unitNumber}</p>
               <p className="text-[12px] text-white/70">{unit.propertyName}</p>
             </div>
 
@@ -60,8 +60,8 @@ export default function PropertiesTab({ properties = [], loading }) {
               <p className="text-[14px] text-[#4A5565] mb-1">Occupancy Status</p>
               <span
                 className={`inline-block text-[12px] px-3 py-1 rounded-full ${unit.status === "Owner Occupied"
-                    ? "bg-[#DBEAFE] text-[#001F3F]"
-                    : "bg-[#DCFCE7] text-[#008236]"
+                  ? "bg-[#DBEAFE] text-[#001F3F]"
+                  : "bg-[#DCFCE7] text-[#008236]"
                   }`}
               >
                 {unit.status}

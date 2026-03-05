@@ -5,13 +5,15 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { FiBell, FiLogOut, FiUser } from "react-icons/fi";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { selectRoleName, selectBuildingName } from "@/store/selectors";
+import { getUserUnitsApi } from "@/lib/api";
 
 export default function Header({ showWelcomeCard }) {
   const user = useSelector((s) => s.auth.user);
   const token = useSelector((s) => s.auth.token);
+  const units = useSelector((state) => state.lookup.units);
   const dispatch = useDispatch();
   const router = useRouter();
   const UPLOAD_URL = process.env.NEXT_PUBLIC_UPLOAD_URL;
@@ -19,6 +21,26 @@ export default function Header({ showWelcomeCard }) {
   const roleSegment = roleName?.toLowerCase();
   const buildingId = user?.assignments?.[0]?.building_id;
   const buildingName = useSelector((s) => selectBuildingName(s, buildingId));
+  const isAdmin = roleName === "Administration";
+  const [userUnits, setUserUnits] = useState([]);
+
+  useEffect(() => {
+  const fetchUserUnits = async () => {
+    try {
+      const res = await getUserUnitsApi();
+      setUserUnits(res?.data?.data || []);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  fetchUserUnits();
+}, []);
+
+const unitNumbers = userUnits
+  ?.map((item) => item?.Unit?.unit_number)
+  ?.filter(Boolean)
+  ?.join(", ");
 
   useEffect(() => {
     if (!user && token) {
@@ -35,6 +57,40 @@ export default function Header({ showWelcomeCard }) {
     router.replace("/");
     toast.success("Logout Successful");
   };
+
+  const WelcomeCardContent = (
+    <>
+      <div className="w-[44px] h-[44px] sm:w-[48px] sm:h-[48px] rounded-full bg-white flex items-center justify-center shrink-0 overflow-hidden">
+        {avatarUrl ? (
+          <Image
+            src={avatarUrl}
+            alt={user?.name || "User"}
+            width={56}
+            height={56}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <FiUser className="text-[#001F3F]" size={24} />
+        )}
+      </div>
+
+      <div className="text-white">
+        <p className="text-[14px] text-white/70">Welcome,</p>
+        <p className="text-[16px]">{user?.name || ""}</p>
+        <p className="text-[14px] text-white/80">
+          {roleName === "Administration" ? (
+            <>Administrator - {buildingName || "Building Name"}</>
+          ) : roleName === "Security" ? (
+            <>Security - {buildingName || "Building Name"}</>
+          ) : (
+            <>
+              {unitNumbers} - {buildingName || "Building Name"}
+            </>
+          )}
+        </p>
+      </div>
+    </>
+  );
   return (
     <header className="fixed top-0 left-0 w-full z-50 bg-[#001F3F]">
       <div className="mx-auto px-4 sm:px-6 py-4 sm:py-5">
@@ -59,39 +115,23 @@ export default function Header({ showWelcomeCard }) {
           </div>
         </div>
 
-        {showWelcomeCard && (
-          <Link href={`/${roleSegment}/profile`} className="text-sm text-[#001F3F]">
-            <div className="mt-2 sm:mt-4 rounded-2xl backdrop-blur-md px-4 sm:px-4 py-4 flex items-center gap-4 hover:bg-white/10">
-              <div className="w-[44px] h-[44px] sm:w-[48px] sm:h-[48px] rounded-full bg-white flex items-center justify-center shrink-0 overflow-hidden">
-                {avatarUrl ? (
-                  <Image
-                    src={avatarUrl}
-                    alt={user?.name || "User"}
-                    width={56}
-                    height={56}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <FiUser className="text-[#001F3F]" size={24} />
-                )}
-              </div>
-
-              <div className="text-white">
-                <p className="text-[14px] text-white/70">Welcome,</p>
-                <p className="text-[16px]">{user?.name || ""}</p>
-                <p className="text-[14px] text-white/80">
-                  {roleName === "Administration" ? (
-                    <>Administrator - {buildingName || "Buidling Name"}</>
-                  ) : roleName === "Security" ? (
-                    <>Security - {buildingName || "Buidling Name"}</>
-                  ) : (
-                    <>{user?.details?.unit_id || "Unit"} - {buildingName || "Buidling Name"}</>
-                  )}
-                </p>
+        {showWelcomeCard &&
+          (isAdmin ? (
+            <div className="text-sm text-[#001F3F]">
+              <div className="mt-2 sm:mt-4 rounded-2xl backdrop-blur-md px-4 py-4 flex items-center gap-4">
+                {WelcomeCardContent}
               </div>
             </div>
-          </Link>
-        )}
+          ) : (
+            <Link
+              href={`/${roleSegment}/profile`}
+              className="text-sm text-[#001F3F]"
+            >
+              <div className="mt-2 sm:mt-4 rounded-2xl backdrop-blur-md px-4 py-4 flex items-center gap-4 hover:bg-white/10">
+                {WelcomeCardContent}
+              </div>
+            </Link>
+          ))}
       </div>
     </header>
   );
