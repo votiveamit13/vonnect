@@ -1,45 +1,79 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FiChevronRight, FiFileText } from "react-icons/fi";
 import { LuBuilding2 } from "react-icons/lu";
 import { FiHome } from "react-icons/fi";
 import Link from "next/link";
 import NavigationHeader from "@/components/common/NavigationHeader";
+import { getUnitsApi } from "@/lib/administrator";
+import Loader from "@/components/Loader";
 
 export default function UnitManagementPage() {
   const [activeTab, setActiveTab] = useState("unit");
   const [showFilter, setShowFilter] = useState(false);
   const [selectedUnit, setSelectedUnit] = useState("all");
-
-  const units = [
-    { id: 101, type: "Residential Unit" },
-    { id: 308, type: "Residential Unit" },
-    { id: 515, type: "Residential Unit" },
-    { id: 202, type: "Residential Unit" },
-  ];
+  const [units, setUnits] = useState([]);
+  const [loadingUnits, setLoadingUnits] = useState(true);
 
   const residences = [
-    { 
-      id: 1, 
-      title: "Amenities", 
-      subtitle: "View residence amenities", 
+    {
+      id: 1,
+      title: "Amenities",
+      subtitle: "View residence amenities",
       icon: LuBuilding2,
       link: "/administration/unit-management/amenities",
     },
-    { 
-      id: 2, 
-      title: "Documentation", 
-      subtitle: "View residence documents", 
+    {
+      id: 2,
+      title: "Documentation",
+      subtitle: "View residence documents",
       icon: FiFileText,
       link: "/administration/unit-management/documentation",
     },
   ];
 
+  useEffect(() => {
+    const fetchUnits = async () => {
+      try {
+        setLoadingUnits(true);
+
+        const match = document.cookie.match(
+          new RegExp("(^| )buildingId=([^;]+)")
+        );
+        const buildingId = match ? match[2] : null;
+
+        if (!buildingId) return;
+
+        const res = await getUnitsApi({
+          building_id: buildingId,
+          page: 1,
+          limit: 100,
+        });
+
+        const list = res.data?.data || [];
+
+        const normalized = list.map((unit) => ({
+          id: unit.id,
+          type: "Residential Unit",
+          unitNumber: unit.unit_number,
+        }));
+
+        setUnits(normalized);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoadingUnits(false);
+      }
+    };
+
+    fetchUnits();
+  }, []);
+
   const filteredUnits =
     selectedUnit === "all"
       ? units
-      : units.filter((u) => u.id === Number(selectedUnit));
+      : units.filter((u) => u.unitNumber === selectedUnit);
 
   return (
     <main className="min-h-screen w-full bg-[#F5F7FA]">
@@ -50,7 +84,6 @@ export default function UnitManagementPage() {
         subtitle="Manage all residential units"
       />
 
-      {/* Tabs */}
       <div className="px-4 mt-4">
         <div className="bg-white rounded-[10px] border border-[#eff0f1] shadow-sm p-1 flex gap-2">
           <button
@@ -87,11 +120,11 @@ export default function UnitManagementPage() {
             {showFilter && (
               <div
                 className="
-            absolute left-0 right-0 mt-2
-            bg-white rounded-[10px] shadow-lg
-            border border-[#eff0f1]
-            overflow-hidden
-          "
+                  absolute left-0 right-0 mt-2
+                  bg-white rounded-[10px] shadow-lg
+                  border border-[#eff0f1]
+                  overflow-hidden
+                "
               >
                 <button
                   onClick={() => {
@@ -99,7 +132,7 @@ export default function UnitManagementPage() {
                     setShowFilter(false);
                   }}
                   className={`w-full text-left px-4 py-3 text-[14px] hover:bg-[#F1F5F9]
-              ${selectedUnit === "all" ? "bg-[#EFF6FF] text-[#001F3F] font-medium" : ""}`}
+                  ${selectedUnit === "all" ? "bg-[#EFF6FF] text-[#001F3F] font-medium" : ""}`}
                 >
                   All Units
                 </button>
@@ -108,13 +141,13 @@ export default function UnitManagementPage() {
                   <button
                     key={u.id}
                     onClick={() => {
-                      setSelectedUnit(u.id);
+                      setSelectedUnit(u.unitNumber);
                       setShowFilter(false);
                     }}
                     className={`w-full text-left px-4 py-3 text-[14px] hover:bg-[#F1F5F9]
-                ${selectedUnit === u.id ? "bg-[#EFF6FF] text-[#001F3F] font-medium" : ""}`}
+                ${selectedUnit === u.unitNumber ? "bg-[#EFF6FF] text-[#001F3F] font-medium" : ""}`}
                   >
-                    Unit {u.id}
+                    Unit {u.unitNumber}
                   </button>
                 ))}
               </div>
@@ -124,7 +157,12 @@ export default function UnitManagementPage() {
       )}
 
       <div className="px-4 mt-4 space-y-3 pb-10">
+        {activeTab === "unit" && loadingUnits && (
+          <Loader text="Loading units..." size="md" />
+        )}
+
         {activeTab === "unit" &&
+          !loadingUnits &&
           filteredUnits.map((unit) => (
             <Link
               key={unit.id}
@@ -136,13 +174,21 @@ export default function UnitManagementPage() {
                   <LuBuilding2 size={20} />
                 </div>
                 <div>
-                  <p className="text-[#001F3F] text-[16px] font-[600]">Unit {unit.id}</p>
+                  <p className="text-[#001F3F] text-[16px] font-[600]">{unit.unitNumber}</p>
                   <p className="text-[12px] text-[#4A5565]">{unit.type}</p>
                 </div>
               </div>
               <FiChevronRight size={20} className="text-[#99A1AF]" />
             </Link>
           ))}
+
+          {activeTab === "unit" &&
+          !loadingUnits &&
+          filteredUnits.length === 0 && (
+            <p className="text-center text-sm text-[#6A7282]">
+              No units found.
+            </p>
+          )}
 
         {activeTab === "residence" &&
           residences.map((item) => (

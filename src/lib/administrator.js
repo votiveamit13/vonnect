@@ -32,8 +32,21 @@ export const verifyUserApi = ({ user_id, status }) => {
   return api.post("/user-verification", { user_id, status });
 };
 
+// Unit Management
 export const getUnitsApi = (params) => {
   return api.get("/units", { params });
+};
+
+export const getUnitDetailsApi = (id) => {
+  return api.get(`/units/${id}`);
+};
+
+export const getUnitFamilyMembersApi = (unitId) => {
+  return api.get(`/unit/family-members/${unitId}`);
+};
+
+export const getUnitFamilyMemberApi = (memberId) => {
+  return api.get(`/unit/family-member/${memberId}`);
 };
 
 export const assignUserToUnitApi = (data) => {

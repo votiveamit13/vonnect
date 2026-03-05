@@ -1,7 +1,9 @@
 "use client";
 
 import NavigationHeader from "@/components/common/NavigationHeader";
-import { useRef, useState } from "react";
+import { getUnitFamilyMemberApi } from "@/lib/administrator";
+import { useParams } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import {
   FiUser,
   FiShield,
@@ -20,6 +22,9 @@ import { MdOutlineShield } from "react-icons/md";
 export default function EditMemberPage() {
   const avatarRef = useRef(null);
   const [avatarPreview, setAvatarPreview] = useState(null);
+  const params = useParams();
+  const memberId = params.memberId;
+  const unitId = params.unitId;
 
   const handleAvatarChange = (e) => {
     const file = e.target.files?.[0];
@@ -33,22 +38,10 @@ export default function EditMemberPage() {
   const handleDriverUpload = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    setDriverLicenseDoc(file.name);
+    setDriverLicenseDoc(file);
   };
 
-  const [vehicles, setVehicles] = useState([
-    {
-      id: 1,
-      make: "",
-      model: "",
-      year: "",
-      plate: "",
-      color: "",
-      insurance: "",
-      expiry: "",
-      doc: null,
-    },
-  ]);
+  const [vehicles, setVehicles] = useState([]);
 
   const addVehicle = () => {
     setVehicles((prev) => [
@@ -81,9 +74,10 @@ export default function EditMemberPage() {
 
   const handleVehicleUpload = (id, file) => {
     if (!file) return;
+
     setVehicles((prev) =>
       prev.map((v) =>
-        v.id === id ? { ...v, doc: file.name } : v
+        v.id === id ? { ...v, doc: file } : v
       )
     );
   };
@@ -94,6 +88,82 @@ export default function EditMemberPage() {
         v.id === id ? { ...v, doc: null } : v
       )
     );
+  };
+
+  const [form, setForm] = useState({
+    full_name: "",
+    relationship: "",
+    marital_status: "",
+    date_of_birth: "",
+    residence_address: "",
+    email: "",
+    phone: "",
+    document_type: "",
+    document_number: "",
+    driver_license_number: "",
+    driver_license_expiry: "",
+    emergency_name: "",
+    emergency_phone: "",
+    emergency_relation: "",
+  });
+
+  useEffect(() => {
+    const fetchMember = async () => {
+      try {
+        const res = await getUnitFamilyMemberApi(memberId);
+        const data = res.data?.data;
+
+        if (!data) return;
+
+        setForm({
+          full_name: data.full_name || "",
+          relationship: data.relationship || "",
+          marital_status: data.marital_status || "",
+          date_of_birth: data.date_of_birth || "",
+          residence_address: data.residence_address || "",
+          email: data.email || "",
+          phone: data.phone || "",
+          document_type: data.document_type || "",
+          document_number: data.document_number || "",
+          driver_license_number: data.driver_license_number || "",
+          driver_license_expiry: data.driver_license_expiry || "",
+          emergency_name: data?.emergency_contact?.name || "",
+          emergency_phone: data?.emergency_contact?.phone || "",
+          emergency_relation: data?.emergency_contact?.relation || "",
+        });
+
+        setDriverLicenseDoc(data.driver_license_document || null);
+
+        if (data.vehicles && data.vehicles.length > 0) {
+          const normalizedVehicles = data.vehicles.map((v) => ({
+            id: v.id,
+            make: v.make || "",
+            model: v.model || "",
+            year: v.year || "",
+            plate: v.plate_number || "",
+            color: v.color || "",
+            insurance: v.insurance_company || "",
+            expiry: v.insurance_expiration || "",
+            doc: v.insurance_document || null,
+          }));
+
+          setVehicles(normalizedVehicles);
+        } else {
+          setVehicles([]);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    if (memberId) fetchMember();
+  }, [memberId]);
+
+  const handleChange = (field, value) => {
+    setForm((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
   };
 
   return (
@@ -108,9 +178,9 @@ export default function EditMemberPage() {
       <div className="flex justify-center mt-5 pt-6">
         <div
           onClick={() => avatarRef.current.click()}
-          className="relative w-24 h-24 rounded-full bg-[#D1D5DB] flex items-center justify-center cursor-pointer overflow-hidden ring-4 ring-white shadow-[0_10px_30px_rgba(0,0,0,0.12)] hover:opacity-80"
+          className="relative w-24 h-24 rounded-full bg-[#D1D5DB] flex items-center justify-center cursor-pointer overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.12)] hover:opacity-80"
           style={{
-            border: "4px solid white",
+            border: "3px solid white",
           }}
         >
           {avatarPreview ? (
@@ -145,7 +215,8 @@ export default function EditMemberPage() {
                 Full Name <span className="text-[#E7000B]">*</span>
               </label>
               <input
-                placeholder="Carlos Rodriguez"
+                value={form.full_name}
+                onChange={(e) => handleChange("full_name", e.target.value)}
                 className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black placeholder:text-[#0A0A0A]/50" />
             </div>
 
@@ -153,14 +224,20 @@ export default function EditMemberPage() {
               <label className="block text-[12px] text-[#364153] mb-1">
                 Relationship <span className="text-[#E7000B]">*</span>
               </label>
-              <input className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black placeholder:text-[#0A0A0A]/50" />
+              <input
+                value={form.relationship}
+                onChange={(e) => handleChange("relationship", e.target.value)}
+                className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black placeholder:text-[#0A0A0A]/50" />
             </div>
 
             <div>
               <label className="block text-[12px] text-[#364153] mb-1">
                 Marital Status
               </label>
-              <select className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black bg-white outline-none focus:border-[#001F3F] appearance-none">
+              <select
+                value={form.marital_status || ""}
+                onChange={(e) => handleChange("marital_status", e.target.value)}
+                className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black bg-white outline-none focus:border-[#001F3F] appearance-none">
                 <option value="">Select status</option>
                 <option value="single">Single</option>
                 <option value="married">Married</option>
@@ -173,7 +250,11 @@ export default function EditMemberPage() {
               <label className="block text-[12px] text-[#364153] mb-1">
                 Date of Birth <span className="text-[#E7000B]">*</span>
               </label>
-              <input type="date" className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black placeholder:text-[#0A0A0A]/50" />
+              <input
+                type="date"
+                value={form.date_of_birth}
+                onChange={(e) => handleChange("date_of_birth", e.target.value)}
+                className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black placeholder:text-[#0A0A0A]/50" />
             </div>
           </div>
         </div>
@@ -216,21 +297,32 @@ export default function EditMemberPage() {
               <label className="block text-[12px] text-[#364153] mb-1">
                 Residence <span className="text-[#E7000B]">*</span>
               </label>
-              <input className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black placeholder:text-[#0A0A0A]/50" />
+              <input
+                value={form.residence_address}
+                onChange={(e) => handleChange("residence_address", e.target.value)}
+                className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black placeholder:text-[#0A0A0A]/50" />
             </div>
 
             <div>
               <label className="block text-[12px] text-[#364153] mb-1">
                 Email <span className="text-[#E7000B]">*</span>
               </label>
-              <input type="email" className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black placeholder:text-[#0A0A0A]/50" />
+              <input
+                type="email"
+                value={form.email}
+                onChange={(e) => handleChange("email", e.target.value)}
+                className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black placeholder:text-[#0A0A0A]/50" />
             </div>
 
             <div>
               <label className="block text-[12px] text-[#364153] mb-1">
                 Phone <span className="text-[#E7000B]">*</span>
               </label>
-              <input type="number" className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black placeholder:text-[#0A0A0A]/50" />
+              <input
+                type="number"
+                value={form.phone}
+                onChange={(e) => handleChange("phone", e.target.value)}
+                className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black placeholder:text-[#0A0A0A]/50" />
             </div>
           </div>
         </div>
@@ -245,7 +337,10 @@ export default function EditMemberPage() {
               <label className="block text-[12px] text-[#364153] mb-1">
                 Name <span className="text-[#E7000B]">*</span>
               </label>
-              <input className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black placeholder:text-[#0A0A0A]/50" />
+              <input
+                value={form.emergency_name}
+                onChange={(e) => handleChange("emergency_name", e.target.value)}
+                className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black placeholder:text-[#0A0A0A]/50" />
             </div>
 
             <div>
@@ -274,17 +369,23 @@ export default function EditMemberPage() {
               <label className="block text-[12px] text-[#364153] mb-1">
                 License Number
               </label>
-              <input className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black placeholder:text-[#0A0A0A]/50" />
+              <input
+                value={form.driver_license_number}
+                onChange={(e) => handleChange("driver_license_number", e.target.value)}
+                className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black placeholder:text-[#0A0A0A]/50" />
             </div>
 
             <div>
               <label className="block text-[12px] text-[#364153] mb-1">
                 Expiry Date
               </label>
-              <input type="date" className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black placeholder:text-[#0A0A0A]/50" />
+              <input
+                type="date"
+                value={form.driver_license_expiry}
+                onChange={(e) => handleChange("driver_license_expiry", e.target.value)}
+                className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black placeholder:text-[#0A0A0A]/50" />
             </div>
 
-            {/* DRIVER LICENSE DOCUMENT */}
             <div>
               <label className="block text-[12px] text-[#364153] mb-1">
                 Driver License Document
@@ -324,7 +425,9 @@ export default function EditMemberPage() {
                 <div className="flex items-center justify-between border border-[#E5E7EB] bg-[#F9FAFB] rounded-[10px] px-4 h-[40px]">
                   <div className="flex items-center gap-3 text-[13px] text-[#001F3F] truncate">
                     <IoDocumentTextOutline size={16} />
-                    {driverLicenseDoc}
+                    {typeof driverLicenseDoc === "string"
+                      ? driverLicenseDoc.split("/").pop()
+                      : driverLicenseDoc?.name}
                   </div>
 
                   <div className="flex items-center gap-4">
@@ -404,8 +507,6 @@ export default function EditMemberPage() {
 
                   {!v.doc ? (
                     <div className="flex items-center justify-start gap-4 border border-[#E5E7EB] rounded-[12px] px-4 h-[40px] bg-white">
-
-                      {/* Hidden Input */}
                       <input
                         type="file"
                         hidden
@@ -415,7 +516,6 @@ export default function EditMemberPage() {
                         }
                       />
 
-                      {/* Blue Pill Button */}
                       <button
                         type="button"
                         onClick={() =>
@@ -435,7 +535,6 @@ export default function EditMemberPage() {
                         Choose File
                       </button>
 
-                      {/* Placeholder Text */}
                       <span className="text-[13px] text-[#6B7280]">
                         No file chosen
                       </span>
@@ -445,7 +544,9 @@ export default function EditMemberPage() {
 
                       <div className="flex items-center gap-3 text-[13px] text-[#001F3F] truncate">
                         <MdOutlineShield size={16} />
-                        {v.doc}
+                        {typeof v.doc === "string"
+                          ? v.doc.split("/").pop()
+                          : v.doc?.name}
                       </div>
 
                       <div className="flex items-center gap-4">
@@ -468,7 +569,7 @@ export default function EditMemberPage() {
           </div>
         </div>
 
-       <div className="pt-6 space-y-3">
+        <div className="pt-6 space-y-3">
           <button className="w-full h-[36px] rounded-[10px] bg-[#001F3F] text-white text-[14px] hover:bg-[#003d7a]">
             Save
           </button>
@@ -480,7 +581,7 @@ export default function EditMemberPage() {
         </div>
 
       </div>
-       
+
     </main>
   );
 }
