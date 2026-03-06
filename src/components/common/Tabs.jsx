@@ -3,7 +3,7 @@
 export default function Tabs({ tabs, active, onChange }) {
   return (
     <div className="px-4 mt-4">
-      <div className="flex gap-2">
+      <div className="flex gap-2 overflow-x-auto whitespace-nowrap pb-1 no-scrollbar">
         {tabs.map((tab) => {
           const isActive = active === tab.key;
 
