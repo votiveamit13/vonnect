@@ -49,6 +49,79 @@ export const getUnitFamilyMemberApi = (memberId) => {
   return api.get(`/unit/family-member/${memberId}`);
 };
 
+export const updateUnitFamilyMemberApi = (id, data) => {
+  return api.put(`/unit/family-member/${id}`, data, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+};
+
+export const addUnitFamilyMemberApi = (formData) => {
+  return api.post("/unit/add-family-members", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+};
+
+export const deleteUnitFamilyMemberApi = (unitId, memberId) => {
+  return api.delete(`/unit/family-members/${unitId}/${memberId}`);
+};
+
+export const assignOwnerToUnitApi = (payload) => {
+  return api.post("/unit/assign-owner", payload);
+};
+
+export const getUnitDocumentsApi = (unitId) => {
+  return api.get(`/unit/documents/${unitId}`);
+};
+
+export const deleteUnitDocumentApi = (unitId, documentId) => {
+  return api.delete(`/unit/documents/${unitId}/${documentId}`);
+};
+
+export const uploadUnitDocumentApi = (formData) => {
+  return api.post("/unit/upload-document", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+};
+
 export const assignUserToUnitApi = (data) => {
   return api.post("/unit/assign-user", data);
+};
+
+// Residence
+export const getResidenceAmenitiesApi = () => {
+  return api.get("/residence/amenities");
+};
+
+export const getResidenceAmenityApi = (id) => {
+  return api.get(`/residence/amenity/${id}`);
+};
+
+export const updateAmenityApi = (id, payload) => {
+  return api.put(`/residence/amenity/${id}`, payload);
+};
+
+export const createAmenityApi = (payload) => {
+  return api.post(`/residence/add-amenity`, payload);
+};
+
+export const getResidenceDocumentsApi = () => {
+  return api.get("/residence/documents");
+};
+
+export const uploadResidenceDocumentApi = (formData) => {
+  return api.post("/residence-document", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+};
+
+export const deleteResidenceDocumentApi = (id) => {
+  return api.delete(`/residence/document/${id}`);
 };

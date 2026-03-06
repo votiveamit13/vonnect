@@ -1,6 +1,8 @@
 "use client";
 
 import NavigationHeader from "@/components/common/NavigationHeader";
+import { addUnitFamilyMemberApi } from "@/lib/administrator";
+import { useParams, useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import {
   FiUser,
@@ -18,8 +20,33 @@ import { LuCar } from "react-icons/lu";
 import { MdOutlineShield } from "react-icons/md";
 
 export default function AddMemberPage() {
+  const params = useParams();
+  const unitId = params.unitId;
+  const router = useRouter();
   const avatarRef = useRef(null);
   const [avatarPreview, setAvatarPreview] = useState(null);
+
+  const [saving, setSaving] = useState(false);
+  const [errors, setErrors] = useState({});
+
+  const [form, setForm] = useState({
+    full_name: "",
+    relationship: "",
+    marital_status: "",
+    date_of_birth: "",
+    residence_address: "",
+    email: "",
+    phone: "",
+    document_type: "",
+    document_number: "",
+    driver_license_number: "",
+    driver_license_expiry: "",
+    emergency_name: "",
+    emergency_phone: "",
+    emergency_relation: "",
+    username: "",
+    password: "",
+  });
 
   const handleAvatarChange = (e) => {
     const file = e.target.files?.[0];
@@ -33,7 +60,7 @@ export default function AddMemberPage() {
   const handleDriverUpload = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    setDriverLicenseDoc(file.name);
+    setDriverLicenseDoc(file);
   };
 
   const [vehicles, setVehicles] = useState([
@@ -83,7 +110,7 @@ export default function AddMemberPage() {
     if (!file) return;
     setVehicles((prev) =>
       prev.map((v) =>
-        v.id === id ? { ...v, doc: file.name } : v
+        v.id === id ? { ...v, doc: file } : v
       )
     );
   };
@@ -96,11 +123,136 @@ export default function AddMemberPage() {
     );
   };
 
+  const handleChange = (field, value) => {
+    setForm((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+
+    setErrors((prev) => ({
+      ...prev,
+      [field]: "",
+    }));
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!form.full_name.trim())
+      newErrors.full_name = "Full name is required";
+
+    if (!form.relationship.trim())
+      newErrors.relationship = "Relationship is required";
+
+    if (!form.date_of_birth)
+      newErrors.date_of_birth = "Date of birth is required";
+
+    if (!form.document_type)
+      newErrors.document_type = "Document type is required";
+
+    if (!form.document_number.trim())
+      newErrors.document_number = "Document number is required";
+
+    if (!form.residence_address.trim())
+      newErrors.residence_address = "Residence is required";
+
+    if (!form.email.trim())
+      newErrors.email = "Email is required";
+
+    if (!form.phone.trim())
+      newErrors.phone = "Phone is required";
+
+    if (!form.emergency_name.trim())
+      newErrors.emergency_name = "Emergency contact name is required";
+
+    if (!form.emergency_phone.trim())
+      newErrors.emergency_phone = "Emergency phone is required";
+
+    if (!form.emergency_relation.trim())
+      newErrors.emergency_relation = "Emergency relationship is required";
+
+    if (!form.password.trim())
+      newErrors.password = "Password is required";
+
+    setErrors(newErrors);
+
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSave = async () => {
+    if (!validateForm()) return;
+
+    try {
+      setSaving(true);
+
+      const formData = new FormData();
+
+      formData.append("unit_id", unitId);
+      formData.append("full_name", form.full_name);
+      formData.append("relationship", form.relationship);
+      formData.append("marital_status", form.marital_status);
+      formData.append("date_of_birth", form.date_of_birth);
+      formData.append("document_type", form.document_type);
+      formData.append("document_number", form.document_number);
+      formData.append("residence_address", form.residence_address);
+      formData.append("email", form.email);
+      formData.append("phone", form.phone);
+
+      formData.append("driver_license_number", form.driver_license_number);
+      formData.append("driver_license_expiry", form.driver_license_expiry);
+
+      formData.append("username", form.username);
+      formData.append("password", form.password);
+
+      formData.append(
+        "emergency_contact",
+        JSON.stringify({
+          name: form.emergency_name,
+          phone: form.emergency_phone,
+          relation: form.emergency_relation,
+        })
+      );
+
+      // driver license
+      if (driverLicenseDoc && typeof driverLicenseDoc !== "string") {
+        formData.append("driver_license_document", driverLicenseDoc);
+      }
+
+      // vehicles
+      const vehiclePayload = vehicles.map((v) => ({
+        make: v.make,
+        model: v.model,
+        year: v.year,
+        plate_number: v.plate,
+        color: v.color,
+        insurance_company: v.insurance,
+        insurance_expiration: v.expiry,
+      }));
+
+      formData.append("vehicles", JSON.stringify(vehiclePayload));
+
+      vehicles.forEach((v) => {
+        if (v.doc && typeof v.doc !== "string") {
+          formData.append("insurance_documents", v.doc);
+        }
+      });
+
+      await addUnitFamilyMemberApi(formData);
+
+      router.push(`/administration/unit-management/${unitId}`);
+
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <main className="min-h-screen bg-[#F5F7FA] pb-10">
       <NavigationHeader
         showBack
-        backHref="/administration/unit-management/101/member/1"
+        backHref={`/administration/unit-management/${unitId}`}
         title="Add New Member"
         subtitle="Unit 101"
       />
@@ -122,7 +274,12 @@ export default function AddMemberPage() {
                 Full Name <span className="text-[#E7000B]">*</span>
               </label>
               <input
+                value={form.full_name}
+                onChange={(e) => handleChange("full_name", e.target.value)}
                 className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black placeholder:text-[#0A0A0A]/50" />
+              {errors.full_name && (
+                <p className="text-red-500 text-[12px] mt-1">{errors.full_name}</p>
+              )}
             </div>
 
             <div>
@@ -130,15 +287,23 @@ export default function AddMemberPage() {
                 Relationship <span className="text-[#E7000B]">*</span>
               </label>
               <input
-                placeholder="e.g., Spouse, Child, Parent" 
+                value={form.relationship}
+                onChange={(e) => handleChange("relationship", e.target.value)}
+                placeholder="e.g., Spouse, Child, Parent"
                 className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black placeholder:text-[#0A0A0A]/50" />
+              {errors.relationship && (
+                <p className="text-red-500 text-[12px] mt-1">{errors.relationship}</p>
+              )}
             </div>
 
             <div>
               <label className="block text-[12px] text-[#364153] mb-1">
                 Marital Status
               </label>
-              <select className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black bg-white outline-none focus:border-[#001F3F] appearance-none">
+              <select
+                value={form.marital_status}
+                onChange={(e) => handleChange("marital_status", e.target.value)}
+                className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black bg-white outline-none focus:border-[#001F3F] appearance-none">
                 <option value="">Select status</option>
                 <option value="single">Single</option>
                 <option value="married">Married</option>
@@ -151,7 +316,14 @@ export default function AddMemberPage() {
               <label className="block text-[12px] text-[#364153] mb-1">
                 Date of Birth <span className="text-[#E7000B]">*</span>
               </label>
-              <input type="date" className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black placeholder:text-[#0A0A0A]/50" />
+              <input
+                type="date"
+                value={form.date_of_birth}
+                onChange={(e) => handleChange("date_of_birth", e.target.value)}
+                className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black placeholder:text-[#0A0A0A]/50" />
+              {errors.date_of_birth && (
+                <p className="text-red-500 text-[12px] mt-1">{errors.date_of_birth}</p>
+              )}
             </div>
           </div>
         </div>
@@ -166,20 +338,32 @@ export default function AddMemberPage() {
               <label className="block text-[12px] text-[#364153] mb-1">
                 Type of Document <span className="text-[#E7000B]">*</span>
               </label>
-              <select className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black bg-white outline-none focus:border-[#001F3F] appearance-none">
+              <select
+                value={form.document_type}
+                onChange={(e) => handleChange("document_type", e.target.value)}
+                className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black bg-white outline-none focus:border-[#001F3F] appearance-none">
                 <option value="">Select type</option>
                 <option value="National ID">National ID</option>
                 <option value="Passport">Passport</option>
                 <option value="Driver License">Driver License</option>
                 <option value="Widowed">Widowed</option>
               </select>
+              {errors.document_type && (
+                <p className="text-red-500 text-[12px] mt-1">{errors.document_type}</p>
+              )}
             </div>
 
             <div>
               <label className="block text-[12px] text-[#364153] mb-1">
                 Document Number <span className="text-[#E7000B]">*</span>
               </label>
-              <input className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black placeholder:text-[#0A0A0A]/50" />
+              <input
+                value={form.document_number}
+                onChange={(e) => handleChange("document_number", e.target.value)}
+                className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black placeholder:text-[#0A0A0A]/50" />
+              {errors.document_number && (
+                <p className="text-red-500 text-[12px] mt-1">{errors.document_number}</p>
+              )}
             </div>
           </div>
         </div>
@@ -194,21 +378,51 @@ export default function AddMemberPage() {
               <label className="block text-[12px] text-[#364153] mb-1">
                 Residence <span className="text-[#E7000B]">*</span>
               </label>
-              <input className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black placeholder:text-[#0A0A0A]/50" />
+              <input
+                value={form.residence_address}
+                onChange={(e) => handleChange("residence_address", e.target.value)}
+                className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black placeholder:text-[#0A0A0A]/50" />
+              {errors.residence_address && (
+                <p className="text-red-500 text-[12px] mt-1">{errors.residence_address}</p>
+              )}
             </div>
 
             <div>
               <label className="block text-[12px] text-[#364153] mb-1">
                 Email <span className="text-[#E7000B]">*</span>
               </label>
-              <input type="email" className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black placeholder:text-[#0A0A0A]/50" />
+              <input
+                type="email"
+                value={form.email}
+                onChange={(e) => {
+                  const value = e.target.value;
+
+                  setForm((prev) => ({
+                    ...prev,
+                    email: value,
+                    username: value
+                  }));
+
+                  setErrors((prev) => ({
+                    ...prev,
+                    email: "",
+                  }));
+                }}
+                className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black placeholder:text-[#0A0A0A]/50" />
             </div>
 
             <div>
               <label className="block text-[12px] text-[#364153] mb-1">
                 Phone <span className="text-[#E7000B]">*</span>
               </label>
-              <input type="number" className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black placeholder:text-[#0A0A0A]/50" />
+              <input
+                type="number"
+                value={form.phone}
+                onChange={(e) => handleChange("phone", e.target.value)}
+                className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black placeholder:text-[#0A0A0A]/50" />
+              {errors.phone && (
+                <p className="text-red-500 text-[12px] mt-1">{errors.phone}</p>
+              )}
             </div>
           </div>
         </div>
@@ -223,21 +437,40 @@ export default function AddMemberPage() {
               <label className="block text-[12px] text-[#364153] mb-1">
                 Name <span className="text-[#E7000B]">*</span>
               </label>
-              <input className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black placeholder:text-[#0A0A0A]/50" />
+              <input
+                value={form.emergency_name}
+                onChange={(e) => handleChange("emergency_name", e.target.value)}
+                className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black placeholder:text-[#0A0A0A]/50" />
+              {errors.emergency_name && (
+                <p className="text-red-500 text-[12px] mt-1">{errors.emergency_name}</p>
+              )}
             </div>
 
             <div>
               <label className="block text-[12px] text-[#364153] mb-1">
                 Phone <span className="text-[#E7000B]">*</span>
               </label>
-              <input className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black placeholder:text-[#0A0A0A]/50" />
+              <input
+                type="number"
+                value={form.emergency_phone}
+                onChange={(e) => handleChange("emergency_phone", e.target.value)}
+                className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black placeholder:text-[#0A0A0A]/50" />
+              {errors.emergency_phone && (
+                <p className="text-red-500 text-[12px] mt-1">{errors.emergency_phone}</p>
+              )}
             </div>
 
             <div>
               <label className="block text-[12px] text-[#364153] mb-1">
                 Relationship <span className="text-[#E7000B]">*</span>
               </label>
-              <input className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black placeholder:text-[#0A0A0A]/50" />
+              <input
+                value={form.emergency_relation}
+                onChange={(e) => handleChange("emergency_relation", e.target.value)}
+                className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black placeholder:text-[#0A0A0A]/50" />
+              {errors.emergency_relation && (
+                <p className="text-red-500 text-[12px] mt-1">{errors.emergency_relation}</p>
+              )}
             </div>
           </div>
         </div>
@@ -252,14 +485,21 @@ export default function AddMemberPage() {
               <label className="block text-[12px] text-[#364153] mb-1">
                 License Number
               </label>
-              <input className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black placeholder:text-[#0A0A0A]/50" />
+              <input
+                value={form.driver_license_number}
+                onChange={(e) => handleChange("driver_license_number", e.target.value)}
+                className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black placeholder:text-[#0A0A0A]/50" />
             </div>
 
             <div>
               <label className="block text-[12px] text-[#364153] mb-1">
                 Expiry Date
               </label>
-              <input type="date" className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black placeholder:text-[#0A0A0A]/50" />
+              <input
+                type="date"
+                value={form.driver_license_expiry}
+                onChange={(e) => handleChange("driver_license_expiry", e.target.value)}
+                className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black placeholder:text-[#0A0A0A]/50" />
             </div>
 
             <div>
@@ -301,7 +541,9 @@ export default function AddMemberPage() {
                 <div className="flex items-center justify-between border border-[#E5E7EB] bg-[#F9FAFB] rounded-[10px] px-4 h-[40px]">
                   <div className="flex items-center gap-3 text-[13px] text-[#001F3F] truncate">
                     <IoDocumentTextOutline size={16} />
-                    {driverLicenseDoc}
+                    {typeof driverLicenseDoc === "string"
+                      ? driverLicenseDoc.split("/").pop()
+                      : driverLicenseDoc?.name}
                   </div>
 
                   <div className="flex items-center gap-4">
@@ -419,7 +661,9 @@ export default function AddMemberPage() {
 
                       <div className="flex items-center gap-3 text-[13px] text-[#001F3F] truncate">
                         <MdOutlineShield size={16} />
-                        {v.doc}
+                        {typeof v.doc === "string"
+                          ? v.doc.split("/").pop()
+                          : v.doc?.name}
                       </div>
 
                       <div className="flex items-center gap-4">
@@ -453,6 +697,8 @@ export default function AddMemberPage() {
                 Username
               </label>
               <input
+                value={form.username}
+                readOnly
                 placeholder="Enter username for member login"
                 className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black placeholder:text-[#0A0A0A]/50" />
             </div>
@@ -462,25 +708,31 @@ export default function AddMemberPage() {
                 Password
               </label>
               <input
-                placeholder="Enter password for member login" 
+                type="password"
+                value={form.password}
+                onChange={(e) => handleChange("password", e.target.value)}
+                placeholder="Enter password for member login"
                 className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black placeholder:text-[#0A0A0A]/50" />
+              {errors.password && (
+                <p className="text-red-500 text-[12px] mt-1">{errors.password}</p>
+              )}
             </div>
           </div>
         </div>
 
-       <div className="pt-6 space-y-3">
-          <button className="w-full h-[36px] rounded-[10px] bg-[#001F3F] text-white text-[14px] hover:bg-[#003d7a]">
-            Save
-          </button>
-
-          <button className="w-full h-[36px] rounded-[10px] border border-red-200 text-[#E7000B] text-[14px] flex items-center justify-center gap-2 hover:bg-red-50">
-            <FiTrash2 size={16} />
-            Delete Member
+        <div className="pt-6 space-y-3">
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className={`w-full h-[36px] rounded-[10px] text-white text-[14px]
+            ${saving ? "bg-gray-400 cursor-not-allowed" : "bg-[#001F3F] hover:bg-[#003d7a]"}`}
+          >
+            {saving ? "Registering..." : "Register Member"}
           </button>
         </div>
 
       </div>
-       
+
     </main>
   );
 }
