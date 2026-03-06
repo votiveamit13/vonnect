@@ -46,9 +46,9 @@ export default function MemberDetailsPage() {
         if (memberId) fetchMember();
     }, [memberId]);
 
-    const profileImage = member?.details?.profile_picture
-        ? `${UPLOAD_URL}${member.details.profile_picture}`
-        : null;
+    const profileImage = member?.profile_picture
+  ? `${UPLOAD_URL}${member.profile_picture}`
+  : null;
 
     return (
         <main className="min-h-screen bg-[#F5F7FA] pb-28">
@@ -88,7 +88,7 @@ export default function MemberDetailsPage() {
                             </div>
                         </div>
 
-                        <div className="w-[80px] h-[80px] rounded-full bg-[#D1D5DC] flex items-center justify-center text-[#6A7282] hover:opacity-80">
+                        <div className="w-[80px] h-[80px] rounded-full bg-[#D1D5DC] overflow-hidden flex items-center justify-center text-[#6A7282] hover:opacity-80">
 
                             {profileImage ? (
                                 <Image
