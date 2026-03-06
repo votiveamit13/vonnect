@@ -1,0 +1,149 @@
+.pay-details-box {
+    padding: 0 20px;
+    margin: 20px 0px;
+}
+.pay-details-box .card{
+        background:#fff;
+        border-radius:8px;
+        padding:20px 25px;
+        margin-bottom:20px;
+    }
+
+   .pay-details-box .card h3 {
+    color: #001F3F;
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 16px;
+        font-weight: 500;
+}
+.hist-show h3 {
+    color: #001f3f;
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+    .pay-details-box .card .row {
+    justify-content: space-between;
+    margin-bottom: 0px;
+    font-size: 15px;
+    display: flex;
+    border: none;
+    padding: 3px 0px;
+}
+
+.info-amt span {
+    color: #4A5565;
+}
+    .pay-details-box .card .amount{
+        font-weight:500;
+        color: #101828;
+    }
+
+    .pay-details-box .card .green{
+        color:#1db954;
+    }
+
+    .pay-details-box .history-card{
+        background:#fff;
+        border-radius:8px;
+        padding:18px 22px;
+    }
+
+    .pay-details-box .history-card .history-left p{
+        margin:6px 0;
+        color:#4a5565;
+        font-size:14px;
+    }
+    .paid-amnt {
+    margin-top: 15px;
+}
+.pay-details-box .history-card p.bold1 {
+    color: #001f3f;
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 16px;
+    font-weight: 500;
+}
+.l-amt p {
+    color: #4a5565;
+    font-size: 14px;
+}
+
+    .pay-details-box .history-card .paid{
+        font-weight:500;
+        color:#1db954;
+        font-size:18px;
+    }
+
+    .pay-details-box .history-card .edit{
+        font-size:18px;
+        color:#666;
+        cursor:pointer;
+    }
+    .paid-amnt input[type="number"] {
+    width: 100%;
+    outline: -webkit-focus-ring-color auto 1px;
+    border-radius: 15px;
+    height: 42px;
+}
+button.save-btn {
+    border: 1px solid;
+    font-size: 22px;
+    background: #00203e;
+    color: #ffffff;
+    border-radius: 15px;
+    padding: 10px;
+}
+button.close-btn {
+    border: 1px solid #ebe6e7;
+    font-size: 22px;
+    background: #ebe6e7;
+    border-radius: 15px;
+    padding: 10px;
+    color: #00213d;
+}
+.row.info-amt.overpaid-row {
+    border-top: 1px solid #ebe6e7;
+    margin-top: 10px;
+    padding-top: 10px;
+}
+.row.info-amt.overpaid-row .amount {
+    color: #f54a00;
+}
+.row.info-amt.underpaid-row {
+    border-top: 1px solid #ebe6e7;
+    margin-top: 10px;
+    padding-top: 10px;
+}
+.row.info-amt.underpaid-row .amount {
+    color: #e7000b;
+}
+button.btn-edit {
+    float: right;
+    margin-top: -35px;
+}
+.edit-save input[type="number"] {
+    background: #ffffff;
+}
+.edit-save {
+    margin-top: -30px;
+}
+.currency-input {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+.currency {
+  position: absolute;
+  left: 8px;
+  top: 11px;
+  color: #555;
+  font-size: 14px;
+}
+.currency-input input {
+  padding-left: 20px;
+  height: 30px;
+}
