@@ -1,7 +1,8 @@
 .section-title {
-    font-size: 14px;
-    color: #6b7280;
+    color: #001F3F;
     margin-bottom: 12px;
+    font-size: 18px;
+    font-weight: 400;
   }
 .history-box .card {
     border: 1px solid #001f3f;
@@ -60,7 +61,7 @@
   }
 
   .arrow {
-    font-size: 18px;
+    font-size: 16px;
     color: #9ca3af;
   }
 
@@ -104,8 +105,8 @@
         margin-top: 5px;
     }
 .history-box {
-    padding-left: 20px;
-    padding-right: 20px;
+    padding-left: 0px;
+    padding-right: 0px;
     margin-top: 20px;
     margin-bottom: 20px;
 }
@@ -127,6 +128,7 @@
         border-radius: 12px;
         display: flex;
         gap: 20px;
+            border: 1px solid #E5E7EB;
         margin-bottom: 20px;
     }
 
@@ -184,11 +186,11 @@
         font-weight: 600;
     }
 
-    .meta {
-        font-size: 12px;
-        color: #4A5565;
-        margin-top: 10px;
-    }
+.meta {
+    font-size: 12px;
+    color: #4A5565;
+    margin-top: 10px;
+}
 .meta > div {
     display: flex;
     align-items: center;
@@ -199,34 +201,34 @@
 .first-row {
     border-bottom: 0px;
 }
-    .buttons {
-        margin-top: 15px;
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-    }
+.buttons {
+    margin-top: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
 
-    .btn {
-        background-color: #001F3F;
-        color: white;
-        padding: 12px;
-        border-radius: 10px;
-        text-align: center;
-        text-decoration: none;
-        font-size: 14px;
-        font-weight: 400;
-            display: flex;
-                align-items: center;
+.btn {
+    background-color: #001F3F;
+    color: white;
+    padding: 12px;
+    border-radius: 10px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 400;
+    display: flex;
+    align-items: center;
     justify-content: center;
-    }
-    .btn svg {
+}
+.btn svg {
     margin-right: 7px;
 }
 
-    .btn:hover {
-        background-color: #123a63;
-    }
-    .box-hist .row span {
+.btn:hover {
+    background-color: #123a63;
+}
+.box-hist .row span {
     color: #4A5565;
     font-size: 14px;
 }
@@ -242,6 +244,7 @@
     display: flex;
     align-items: center;
     border: 1.5px solid #4ade80; /* light green border */
+    background: linear-gradient(#F0FDF4 0%, #fff 100%);
     border-radius: 12px;
     padding: 15px 20px;
     gap: 15px;
@@ -265,7 +268,7 @@
     flex-direction: column;
   }
   .summary-text .title {
-    font-weight: 700;
+    font-weight: 500;
     font-size: 14px;
     color: #22c55e; /* same green */
     margin-bottom: 4px;
@@ -276,7 +279,7 @@
     margin-bottom: 4px;
   }
   .summary-text .subtitle {
-    font-size: 12px;
+    font-size: 14px;
     color: #4b5563; /* gray */
   }
   .left span {
@@ -304,4 +307,247 @@
     font-size: 16px !important;
     font-weight: 400 !important;
     color: #00A63E;
+}
+.sum-card-pend {
+    border: 1px solid #FFC9C9;
+    flex-direction: column;
+    align-items: flex-start;
+    background: linear-gradient(180deg, #FEF2F2 0%, #FFFFFF 100%);
+}
+.sum-card-pend .icon-circle {
+    background-color: #FB2C36;
+    margin-right: 15px;
+}
+.sum-card-pend .title {
+    color: #4A5565;
+    font-weight: 500;
+    font-size: 14px;
+}
+.sum-card-pend .amount {
+    color: #001F3F;
+}
+.sum-card-pend .subtitle {
+    color: #6A7282;
+    font-size: 14px;
+}
+.due-date {
+    display: flex;
+    border-top: 1px solid #FFC9C9;
+    width: 100%;
+    padding-top: 15px;
+    font-size: 14px;
+    align-items: center;
+    color: #E7000B;
+}
+.upr-icon {
+    align-items: center;
+    display: flex;
+    width: 100%;
+}
+.due-date span {
+    font-weight: 500;
+    margin-right: 5px;
+}
+.section-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.remi-btn button {
+    background: #001F3F;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    color: #ffffff;
+    font-size: 16px;
+    padding: 10px 20px;
+}
+.remi-btn button svg {
+    margin-right: 7px;
+}
+
+.invoice-card{
+  border:1px solid #001F3F;
+  border-radius:10px;
+  padding:20px;
+  margin-bottom:20px;
+  background:white;
+}
+
+.invoice-header{
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:15px;
+}
+
+.invoice-amount .amount-label {
+    color: #4A5565;
+    font-size: 14px;
+}
+
+.invoice-amount .amount-value {
+    color: #E7000B;
+    font-weight: 500;
+    text-align: right;
+}
+
+.reminder-box{
+  background:#eef5ff;
+  border:1px solid #c7ddff;
+  border-radius:10px;
+  padding:12px;
+  margin-bottom:10px;
+}
+
+.note-button {
+    margin-bottom: 10px;
+    color: #155DFC;
+    background: #EFF6FF;
+    width: 100%;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    border: 1px solid #BEDBFF;
+}
+
+.reminder-button {
+    color: #fff;
+    background: #072b4a;
+    width: 100%;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+}
+.reminder-button svg {
+    margin-right: 7px;
+}
+.note-button svg {
+    margin-right: 7px;
+}
+.invoice-amount {
+    display: grid;
+}
+.invoice-id {
+    color: #001F3F;
+    font-size: 18px;
+}
+.invoice-id {
+    color: #001F3F;
+    font-size: 18px;
+}
+.reminder-history {
+    color: #1447E6;
+    margin-left: 10px;
+}
+.reminder-text {
+    color: #1C398E;
+    display: flex;
+    align-items: flex-start;
+}
+.hist {
+    display: flex;
+    align-items: center;
+}
+.hist svg {
+    margin-right: 7px;
+}
+.lrs {
+    color: #1C398E;
+}
+.dflex {
+    margin-top: 5px;
+}
+.saved-note {
+    color: #155dfc;
+    background: #eef5ff;
+    border: 1px solid #bedbff;
+    border-radius: 10px;
+    width: 100%;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+}
+.saved-note svg {
+    margin-right: 7px;
+}
+.dflex svg {
+    color: #1447e6;
+}
+.reminder-history .lrs span {
+    font-weight: 500;
+    letter-spacing: -1px;
+}
+button.submit-note {
+    width: 100%;
+    border-radius: 10px;
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+button.submit-note svg {
+    margin-right: 7px;
+}
+.an-note {
+    border-bottom: 1px solid #D1D5DC;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    color: #001F3F;
+    font-size: 16px;
+    font-weight: 400;
+}
+.nf-note {
+    margin-bottom: 5px;
+}
+.nf-note p {
+    color: #364153;
+    font-size: 14px;
+}
+.saved-note strong {
+    letter-spacing: -1px;
+    margin-right: 3px;
+}
+.history-info-rem {
+    background-color: #EFF6FF;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #BEDBFF;
+}
+.history-info-rem {
+    background-color: #EFF6FF;
+    padding: 15px;
+    border-radius: 10px;
+    display: flex;
+    align-items: flex-start;
+    border: 1px solid #BEDBFF;
+}
+.history-info-rem h4 {
+    color: #001f3f;
+    margin-bottom: 3px;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -1px;
+}
+.history-info-rem p {
+    font-size: 14px;
+    color: #364153;
+}
+.history-info-rem .icon {
+    background: #DBEAFE;
+    color: #155DFC;
+    border-radius: 10px;
+    padding: 8px;
+    margin-right: 15px;
+}
+.history-info-rem span {
+    font-weight: 500;
+}
+.notes-section {
+    display: grid;
+    gap: 10px;
 }
