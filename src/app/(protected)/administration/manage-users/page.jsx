@@ -9,7 +9,7 @@ import {
   getUnitsApi,
   assignUserToUnitApi,
 } from "@/lib/administrator";
-import toast from "react-hot-toast";
+// import toast from "react-hot-toast";
 import Pagination from "@/components/Pagination";
 import { useSelector } from "react-redux";
 
@@ -37,7 +37,7 @@ export default function ManageUsers() {
         const buildingId = match ? match[2] : null;
 
         if (!buildingId) {
-          toast.error("Building not selected");
+          // toast.error("Building not selected");
           return;
         }
 
@@ -85,7 +85,7 @@ export default function ManageUsers() {
         }
       } catch (err) {
         console.error(err);
-        toast.error("Failed to load users");
+        // toast.error("Failed to load users");
       } finally {
         setLoading(false);
       }
@@ -119,12 +119,12 @@ export default function ManageUsers() {
         [user.id]: true,
       }));
 
-      toast.success("Unit assigned successfully");
+      // toast.success("Unit assigned successfully");
     } catch (err) {
       console.error(err);
-      toast.error(
-        err?.response?.data?.message || "Failed to assign unit"
-      );
+      // toast.error(
+      //   err?.response?.data?.message || "Failed to assign unit"
+      // );
     } finally {
       setProcessingId(null);
     }
@@ -138,12 +138,12 @@ export default function ManageUsers() {
 
       setUsers((prev) => prev.filter((u) => u.id !== id));
 
-      toast.success("User approved & verification email sent");
+      // toast.success("User approved & verification email sent");
     } catch (err) {
       console.error(err);
-      toast.error(
-        err?.response?.data?.message || "Failed to approve user"
-      );
+      // toast.error(
+      //   err?.response?.data?.message || "Failed to approve user"
+      // );
     } finally {
       setProcessingId(null);
     }
@@ -157,12 +157,12 @@ export default function ManageUsers() {
 
       setUsers((prev) => prev.filter((u) => u.id !== id));
 
-      toast.success("User rejected successfully");
+      // toast.success("User rejected successfully");
     } catch (err) {
       console.error(err);
-      toast.error(
-        err?.response?.data?.message || "Failed to reject user"
-      );
+      // toast.error(
+      //   err?.response?.data?.message || "Failed to reject user"
+      // );
     } finally {
       setProcessingId(null);
     }

@@ -1,7 +1,10 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
 import { FiArrowLeft, FiUser } from "react-icons/fi";
 import { LuCamera } from "react-icons/lu";
+import { useRef } from "react";
 
 export default function NavigationHeader({
   showBack = false,
@@ -14,7 +17,23 @@ export default function NavigationHeader({
   tabs = [],
   activeTab = "",
   baseTabHref = "",
+  onAvatarUpload,
 }) {
+
+  const fileInputRef = useRef(null);
+
+const handleAvatarClick = () => {
+  fileInputRef.current?.click();
+};
+
+const handleFileChange = (e) => {
+  const file = e.target.files?.[0];
+  if (file && onAvatarUpload) {
+    onAvatarUpload(file);
+  }
+
+  e.target.value = "";
+};
   return (
     <div className="w-full bg-[#001F3F] text-white pb-4">
       <div className="flex items-center justify-between px-4 sm:px-6 pt-4">
@@ -37,11 +56,11 @@ export default function NavigationHeader({
 
       {showProfile && profileData?.name && (
         <div className="rounded-xl px-4 sm:px-6 mt-2 flex items-center gap-4">
-          <Link
-            href={avatarHref || "#"}
-            className="relative w-[60px] h-[60px] sm:w-[64px] sm:h-[64px] rounded-full bg-white/10 border border-white/20 
-                        flex items-center justify-center overflow-visible"
-            >
+          <div
+  onClick={handleAvatarClick}
+  className="relative w-[60px] h-[60px] sm:w-[64px] sm:h-[64px] rounded-full bg-white/10 border border-white/20 
+  flex items-center justify-center overflow-visible cursor-pointer"
+>
             {profileData.image ? (
                 <Image src={profileData.image} alt="Profile" fill className="object-cover rounded-full" />
             ) : (
@@ -54,8 +73,14 @@ export default function NavigationHeader({
             >
                 <LuCamera size={12} />
             </div>
-            </Link>
-
+            </div>
+<input
+  ref={fileInputRef}
+  type="file"
+  accept="image/*"
+  className="hidden"
+  onChange={handleFileChange}
+/>
 
           <div>
             <h3 className="text-[18px] mb-1">{profileData.name}</h3>
@@ -81,7 +106,7 @@ export default function NavigationHeader({
       )}
 
       {tabs.length > 0 && (
-        <div className="px-4 sm:px-6 mt-4 flex flex-wrap gap-2">
+        <div className="px-4 sm:px-6 mt-4 flex overflow-x-auto whitespace-nowrap pb-1 no-scrollbar gap-2">
           {tabs.map((tab) => (
             <Link
               key={tab}

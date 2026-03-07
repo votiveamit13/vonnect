@@ -31,7 +31,7 @@ export default function PropertiesTab({ properties = [], loading }) {
               <p className="text-[12px] text-white/70">{unit.propertyName}</p>
             </div>
 
-            <div className="p-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="p-5 grid grid-cols-2 sm:grid-cols-2 gap-4">
               <div>
                 <p className="text-[12px] text-[#6A7282]">Unit Type</p>
                 <p className="text-[14px] text-[#001F3F]">{unit.unitType}</p>
@@ -59,7 +59,7 @@ export default function PropertiesTab({ properties = [], loading }) {
             <div className="flex justify-between w-full px-5 mb-4">
               <p className="text-[14px] text-[#4A5565] mb-1">Occupancy Status</p>
               <span
-                className={`inline-block text-[12px] px-3 py-1 rounded-full ${unit.status === "Owner Occupied"
+                className={`inline-block text-[12px] px-3 py-1 rounded-full ${unit.status === "Occupied"
                   ? "bg-[#DBEAFE] text-[#001F3F]"
                   : "bg-[#DCFCE7] text-[#008236]"
                   }`}
@@ -77,13 +77,13 @@ export default function PropertiesTab({ properties = [], loading }) {
               </Link>
 
 
-              {unit.showManageTenant && (
+              {/* {unit.showManageTenant && (
                 <Link href={`/owner/profile/${unit.id}/tenant`}>
                   <button className="w-full h-[36px] rounded-[10px] border border-[#001F3F] text-[#001F3F] text-[12px] hover:bg-[#001F3F] hover:text-white transition">
                     Manage Tenants
                   </button>
                 </Link>
-              )}
+              )} */}
             </div>
 
             {unit.complementaryUnits?.length > 0 && (
@@ -136,7 +136,7 @@ export default function PropertiesTab({ properties = [], loading }) {
                         </div>
                       </div>
 
-                      {c.showManageTenant && (
+                      {/* {c.showManageTenant && (
                         <div className="px-4">
                           <Link href={`/owner/profile/${unit.id}/tenant?complementary=${c.id}`}>
                             <button className="mt-3 mb-3 w-full h-[36px] rounded-[10px] border border-[#001F3F] text-[#001F3F] text-[12px] hover:bg-[#001F3F] hover:text-white transition">
@@ -144,7 +144,7 @@ export default function PropertiesTab({ properties = [], loading }) {
                             </button>
                           </Link>
                         </div>
-                      )}
+                      )} */}
                     </div>
                   ))}
                 </div>

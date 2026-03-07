@@ -18,9 +18,10 @@ import {
   getUserNotificationTypesApi,
   getUserDocumentsApi,
   getUserUnitsApi,
-  updateLanguageApi
+  updateLanguageApi,
+  updateProfilePictureApi
 } from "@/lib/api";
-import { updateUserLang } from "@/store/slices/authSlice";
+import { getProfileThunk, updateUserLang } from "@/store/slices/authSlice";
 import { useDispatch } from "react-redux";
 import toast from "react-hot-toast";
 import { setUnits } from "@/store/slices/unitSlice";
@@ -46,6 +47,7 @@ export default function Profile() {
   const [aboutLoading, setAboutLoading] = useState(false);
   const [unitsLoading, setUnitsLoading] = useState(false);
   const [normalizedUnits, setNormalizedUnits] = useState([]);
+  const [uploading, setUploading] = useState(false);
   const avatarUrl = user?.details?.profile_picture
     ? `${UPLOAD_URL}${user.details.profile_picture}`
     : null;
@@ -95,6 +97,7 @@ export default function Profile() {
 
       const normalized = assignments.map((assignment) => {
         const unit = assignment.Unit;
+        const isOwner = String(unit?.Unit?.assigned_users?.is_owner) === "true";
         const isRented = String(unit.occupaycy_status) === "true";
 
         return {
@@ -104,7 +107,7 @@ export default function Profile() {
           unitType: unit.unit_type || "Unit",
           squareMeters: Number(unit.square_meters) || 0,
           coefficient: Number(unit.coefficient) || 0,
-          status: isRented ? "Rented" : "Owner Occupied",
+          status: isOwner ? "Rented" : "Occupied",
           showManageUnit: true,
           showManageTenant: isRented,
           complementaryUnits: (unit.complementary_units || []).map((c) => ({
@@ -173,7 +176,7 @@ export default function Profile() {
             key: `type_${type.id}`,
             id: type.id,
             title: type.title,
-            description: "Notification updates",
+            description: type.description,
             app: userSetting
               ? userSetting.app_enabled
               : false,
@@ -219,7 +222,24 @@ export default function Profile() {
     fetchAbout();
   }, [tab]);
 
+const handleAvatarUpload = async (file) => {
+  if (!file || uploading) return;
 
+  try {
+    setUploading(true);
+
+    await updateProfilePictureApi(file);
+
+    await dispatch(getProfileThunk());
+
+    // toast.success("Profile photo updated");
+  } catch (err) {
+    console.error(err?.response?.data?.message);
+    // toast.error(err?.response?.data?.message || "Upload failed");
+  } finally {
+    setUploading(false);
+  }
+};
 
   if (!user) return null;
 
@@ -230,7 +250,7 @@ export default function Profile() {
         backHref="/owner"
         title="My Profile"
         showProfile
-        avatarHref="/owner/profile/upload-photo"
+        onAvatarUpload={handleAvatarUpload}
         profileData={{
           name: user.name,
           role: roleName,

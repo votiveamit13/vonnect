@@ -40,7 +40,7 @@ export default function Header({ showWelcomeCard }) {
 const unitNumbers = userUnits
   ?.map((item) => item?.Unit?.unit_number)
   ?.filter(Boolean)
-  ?.join(", ");
+  ?.join("- ");
 
   useEffect(() => {
     if (!user && token) {

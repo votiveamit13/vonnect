@@ -26,7 +26,7 @@ export default function RegisterForm({ role, role_id }) {
     name: "",
     idNumber: "",
     email: "",
-    phone: "",
+    // phone: "",
     username: "",
     password: "",
     confirmPassword: "",
@@ -43,7 +43,7 @@ export default function RegisterForm({ role, role_id }) {
         const res = await getBuildings();
         setBuildings(res.data?.data || []);
       } catch (e) {
-        toast.error("Failed to load buildings");
+        console.error(e);
       } finally {
         setLoadingBuildings(false);
       }
@@ -53,34 +53,41 @@ export default function RegisterForm({ role, role_id }) {
   }, []);
 
   const onChange = (key) => (e) => {
-    const value =
-      e.target.type === "checkbox" ? e.target.checked : e.target.value;
+  const value =
+    e.target.type === "checkbox" ? e.target.checked : e.target.value;
 
-    setForm((p) => ({ ...p, [key]: value }));
+  setForm((p) => {
+    const updated = { ...p, [key]: value };
 
-    if (errors[key]) {
-      setErrors((p) => ({ ...p, [key]: "" }));
+    if (key === "email") {
+      updated.username = value;
     }
 
-    // clear API error when user changes anything
-    if (errors._form) {
-      setErrors((p) => ({ ...p, _form: "" }));
-    }
+    return updated;
+  });
 
-    if (key === "password" || key === "confirmPassword") {
-      setErrors((p) => ({ ...p, confirmPassword: "" }));
-    }
-  };
+  if (errors[key]) {
+    setErrors((p) => ({ ...p, [key]: "" }));
+  }
+
+  if (errors._form) {
+    setErrors((p) => ({ ...p, _form: "" }));
+  }
+
+  if (key === "password" || key === "confirmPassword") {
+    setErrors((p) => ({ ...p, confirmPassword: "" }));
+  }
+};
 
   const validate = () => {
     const e = {};
     if (!form.name.trim()) e.name = "Full name is required";
     if (!form.idNumber.trim()) e.idNumber = "ID Number is required";
     if (!form.email.trim()) e.email = "Email is required";
-    if (!form.phone.trim()) e.phone = "Phone Number is required";
+    // if (!form.phone.trim()) e.phone = "Phone Number is required";
     if (!form.username.trim()) e.username = "Username is required";
     if (!form.password) e.password = "Password is required";
-    else if (form.password.length < 6) e.password = "Min 6 characters";
+    else if (form.password.length < 8) e.password = "Min 8 characters";
     if (form.password !== form.confirmPassword)
       e.confirmPassword = "Passwords do not match";
     if (!form.building_id) e.building_id = "Select a building";
@@ -97,7 +104,7 @@ export default function RegisterForm({ role, role_id }) {
       name: form.name,
       id_number: form.idNumber,
       email: form.email,
-      phone: form.phone || undefined,
+      // phone: form.phone || undefined,
       username: form.username,
       password: form.password,
       role_id,
@@ -108,7 +115,6 @@ export default function RegisterForm({ role, role_id }) {
     const res = await dispatch(signupThunk(payload));
 
     if (res.meta.requestStatus === "fulfilled") {
-      toast.success("Check your email for verification once form is approved by administration");
       router.push(`/login?role=${role}`);
     } else {
       setErrors((prev) => ({
@@ -123,8 +129,6 @@ export default function RegisterForm({ role, role_id }) {
     <div className="bg-white rounded-2xl shadow-lg overflow-hidden mb-4">
       <div className="px-5 sm:px-8 py-6 sm:py-8 text-left
                       max-h-[65vh] overflow-y-auto">
-
-        {/* Building Select */}
         <div className="mb-4">
           <label className="block text-[#364153] text-[16px] mb-2">Select Building</label>
           <div className="group flex items-center gap-3 border border-[#D1D5DC] rounded-[10px] px-4 h-[52px] mb-1 focus-within:border-[#001F3F] focus-within:ring-2 focus-within:ring-[#001F3F]">
@@ -146,7 +150,6 @@ export default function RegisterForm({ role, role_id }) {
             <p className="text-red-500 text-xs mb-3">{errors.building_id}</p>
           )}
         </div>
-        {/* Full Name */}
         <div className="mb-4">
           <label className="block text-[#364153] text-[16px] mb-2">Full Name</label>
           <div className="group flex items-center gap-3 border border-[#D1D5DC] rounded-[10px] px-4 h-[52px] sm:h-[56px] mb-1 transition focus-within:border-[#001F3F] focus-within:ring-2 focus-within:ring-[#001F3F]">
@@ -155,7 +158,6 @@ export default function RegisterForm({ role, role_id }) {
           </div>
           {errors.name && <p className="text-red-500 text-xs mb-3">{errors.name}</p>}
         </div>
-        {/* ID Number */}
         <div className="mb-4">
           <label className="block text-[#364153] text-[16px] mb-2">ID Number</label>
           <div className="group flex items-center gap-3 border border-[#D1D5DC] rounded-[10px] px-4 h-[52px] sm:h-[56px] mb-1 transition focus-within:border-[#001F3F] focus-within:ring-2 focus-within:ring-[#001F3F]">
@@ -172,7 +174,6 @@ export default function RegisterForm({ role, role_id }) {
             <p className="text-red-500 text-xs mb-3">{errors.idNumber}</p>
           )}
         </div>
-        {/* Email */}
         <div className="mb-4">
           <label className="block text-[#364153] text-[16px] mb-2">Email</label>
           <div className="group flex items-center gap-3 border border-[#D1D5DC] rounded-[10px] px-4 h-[52px] sm:h-[56px] mb-1 transition focus-within:border-[#001F3F] focus-within:ring-2 focus-within:ring-[#001F3F]">
@@ -181,25 +182,22 @@ export default function RegisterForm({ role, role_id }) {
           </div>
           {errors.email && <p className="text-red-500 text-xs mb-3">{errors.email}</p>}
         </div>
-        {/* Phone */}
-        <div className="mb-4">
+        {/* <div className="mb-4">
           <label className="block text-[#364153] text-[16px] mb-2">Phone</label>
           <div className="group flex items-center gap-3 border border-[#D1D5DC] rounded-[10px] px-4 h-[52px] sm:h-[56px] mb-1 transition focus-within:border-[#001F3F] focus-within:ring-2 focus-within:ring-[#001F3F]">
             <FiPhone className="text-[#99A1AF]" size={20} />
             <input type="tel" placeholder="Enter your phone number" className="w-full outline-none text-[16px] text-black placeholder:text-[#0A0A0A]/50 bg-transparent" value={form.phone} onChange={onChange("phone")} />
           </div>
           {errors.phone && <p className="text-red-500 text-xs mb-3">{errors.phone}</p>}
-        </div>
-        {/* Username */}
+        </div> */}
         <div className="mb-4">
           <label className="block text-[#364153] text-[16px]">Username</label>
           <div className="group flex items-center gap-3 border border-[#D1D5DC] rounded-[10px] px-4 h-[52px] sm:h-[56px] mb-1 transition focus-within:border-[#001F3F] focus-within:ring-2 focus-within:ring-[#001F3F]">
             <FiUser className="text-[#99A1AF]" size={20} />
-            <input type="text" placeholder="Choose a username" className="w-full outline-none text-[16px] text-black placeholder:text-[#0A0A0A]/50 bg-transparent" value={form.username} onChange={onChange("username")} />
+            <input type="text" value={form.username} readOnly placeholder="Choose a username" className="w-full outline-none text-[16px] text-black placeholder:text-[#0A0A0A]/50 bg-transparent" />
           </div>
           {errors.username && <p className="text-red-500 text-xs mb-3">{errors.username}</p>}
         </div>
-        {/* Password */}
         <div className="mb-4">
           <label className="block text-[#364153] text-[16px] mb-2">Password</label>
           <div className="group flex items-center gap-3 border border-[#D1D5DC] rounded-[10px] px-4 h-[52px] sm:h-[56px] mb-1 transition focus-within:border-[#001F3F] focus-within:ring-2 focus-within:ring-[#001F3F]">
@@ -217,7 +215,6 @@ export default function RegisterForm({ role, role_id }) {
           </div>
           {errors.password && <p className="text-red-500 text-xs mb-3">{errors.password}</p>}
         </div>
-        {/* Confirm Password */}
         <div className="mb-4">
           <label className="block text-[#364153] text-[16px] mb-2">Confirm Password</label>
           <div className="group flex items-center gap-3 border border-[#D1D5DC] rounded-[10px] px-4 h-[52px] sm:h-[56px] mb-1 transition focus-within:border-[#001F3F] focus-within:ring-2 focus-within:ring-[#001F3F]">
@@ -235,7 +232,6 @@ export default function RegisterForm({ role, role_id }) {
           </div>
           {errors.confirmPassword && <p className="text-red-500 text-xs mb-3">{errors.confirmPassword}</p>}
         </div>
-        {/* Terms */}
         <div className="mb-4">
           <div className="flex items-start gap-3 mb-4">
             <input id="terms" type="checkbox" className="mt-1 h-4 w-4 rounded border-[#CBD5E1] text-[#001F3F] focus:ring-[#001F3F]" checked={form.terms} onChange={onChange("terms")} />
