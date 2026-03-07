@@ -18,7 +18,7 @@ export default function ProfileTab({ data, viewDocumentHref }) {
           <span className="text-[14px]">Personal Information</span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 border-b-2 border-[#E5E5E5]">
+        <div className="grid grid-cols-2 sm:grid-cols-2 border-b-2 border-[#E5E5E5]">
           <div className="flex gap-3 px-5 py-4">
             <div className="text-[#94A3B8] mt-1">
               <RiIdCardLine size={20} stroke="#99A1AF" />

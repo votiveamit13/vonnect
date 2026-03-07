@@ -126,7 +126,7 @@ export default function NotificationTab({ title, items = [], loading }) {
                   </div>
 
                   <div>
-                    <p className="text-[14px] text-[#001F3F] leading-tight">
+                    <p className="text-[14px] text-[#001F3F] leading-tight font-medium">
                       {item.title}
                     </p>
                     <p className="text-[12px] text-[#6A7282] leading-tight">

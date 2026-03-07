@@ -95,6 +95,7 @@ export default function Profile() {
 
       const normalized = assignments.map((assignment) => {
         const unit = assignment.Unit;
+         const isOwner = String(unit?.Unit?.assigned_users?.is_owner) === "true";
         const isRented = String(unit.occupaycy_status) === "true";
 
         return {
@@ -104,7 +105,7 @@ export default function Profile() {
           unitType: unit.unit_type || "Unit",
           squareMeters: Number(unit.square_meters) || 0,
           coefficient: Number(unit.coefficient) || 0,
-          status: isRented ? "Rented" : "Owner Occupied",
+          status: isOwner ? "Rented" : "Occupied",
           showManageUnit: true,
           showManageTenant: isRented,
           complementaryUnits: (unit.complementary_units || []).map((c) => ({
