@@ -5,6 +5,7 @@ import FloatingActionButton from "@/components/FloatingButton";
 import Loader from "@/components/Loader";
 import { getUnitFamilyMemberApi } from "@/lib/administrator";
 import { formatDate } from "@/lib/formatdate";
+import Image from "next/image";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -14,6 +15,7 @@ import { LuCar, LuIdCard } from "react-icons/lu";
 import { useSelector } from "react-redux";
 
 export default function MemberDetailsPage() {
+    const UPLOAD_URL = process.env.NEXT_PUBLIC_UPLOAD_URL;
     const params = useParams();
     const memberId = params.memberId;
     const unitId = params.unitId;
@@ -23,8 +25,8 @@ export default function MemberDetailsPage() {
     const units = useSelector((state) => state.lookup.units);
 
     const unitNumber = units.find(
-  (u) => u.id == member?.unit_id
-)?.unit_number;
+        (u) => u.id == member?.unit_id
+    )?.unit_number;
 
     useEffect(() => {
         const fetchMember = async () => {
@@ -43,6 +45,10 @@ export default function MemberDetailsPage() {
 
         if (memberId) fetchMember();
     }, [memberId]);
+
+    const profileImage = member?.profile_picture
+  ? `${UPLOAD_URL}${member.profile_picture}`
+  : null;
 
     return (
         <main className="min-h-screen bg-[#F5F7FA] pb-28">
@@ -82,8 +88,19 @@ export default function MemberDetailsPage() {
                             </div>
                         </div>
 
-                        <div className="w-[80px] h-[80px] rounded-full bg-[#D1D5DC] flex items-center justify-center text-[#6A7282] hover:opacity-80">
-                            <FiUser size={40} stroke="#6A7282" />
+                        <div className="w-[80px] h-[80px] rounded-full bg-[#D1D5DC] overflow-hidden flex items-center justify-center text-[#6A7282] hover:opacity-80">
+
+                            {profileImage ? (
+                                <Image
+                                    src={profileImage}
+                                    alt={member?.full_name}
+                                    width={80}
+                                    height={80}
+                                    className="w-full h-full object-cover"
+                                />
+                            ) : (
+                                <FiUser size={40} stroke="#6A7282" />
+                            )}
                         </div>
                     </div>
 

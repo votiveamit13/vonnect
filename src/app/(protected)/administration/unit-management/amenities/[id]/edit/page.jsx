@@ -1,19 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import NavigationHeader from "@/components/common/NavigationHeader";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import Loader from "@/components/Loader";
+import { getResidenceAmenityApi, updateAmenityApi } from "@/lib/administrator";
 import useBuildings from "@/hooks/useBuildings";
-import { createAmenityApi } from "@/lib/administrator";
 
-export default function CreateAmenityPage() {
+export default function AmenitiyEdit() {
 
+    const { id } = useParams();
     const router = useRouter();
     const { buildings } = useBuildings();
-
     const days = ["S", "M", "T", "W", "TH", "F", "SA"];
 
-    const [selectedDays, setSelectedDays] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [saving, setSaving] = useState(false);
+    const [errors, setErrors] = useState({});
 
     const [form, setForm] = useState({
         name: "",
@@ -22,11 +25,10 @@ export default function CreateAmenityPage() {
         square_meters: "",
         capacity: "",
         opens_at: "",
-        closes_at: ""
+        closes_at: "",
     });
 
-    const [errors, setErrors] = useState({});
-    const [saving, setSaving] = useState(false);
+    const [selectedDays, setSelectedDays] = useState([]);
 
     const toggleDay = (day) => {
         setSelectedDays((prev) =>
@@ -36,15 +38,7 @@ export default function CreateAmenityPage() {
         );
     };
 
-    const handleChange = (e) => {
-        setForm({
-            ...form,
-            [e.target.name]: e.target.value
-        });
-    };
-
     const validateForm = () => {
-
         const newErrors = {};
 
         if (!form.name) newErrors.name = "Amenity name is required";
@@ -58,20 +52,59 @@ export default function CreateAmenityPage() {
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleSubmit = async () => {
+    const handleChange = (e) => {
+        setForm({
+            ...form,
+            [e.target.name]: e.target.value
+        });
+    };
 
+    useEffect(() => {
+
+        const fetchAmenity = async () => {
+            try {
+
+                setLoading(true);
+
+                const res = await getResidenceAmenityApi(id);
+                const data = res.data?.data;
+
+                setForm({
+                    name: data.name || "",
+                    residence_type_id: data.residence_type_id || "",
+                    building_id: data.building_id || "",
+                    square_meters: data.square_meters || "",
+                    capacity: data.capacity || "",
+                    opens_at: data.opens_at?.slice(0, 5) || "",
+                    closes_at: data.closes_at?.slice(0, 5) || "",
+                });
+
+                setSelectedDays(data.operating_days || []);
+
+            } catch (err) {
+                console.error(err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (id) fetchAmenity();
+
+    }, [id]);
+
+    const handleSubmit = async () => {
         if (!validateForm()) return;
 
         try {
 
             setSaving(true);
 
-            await createAmenityApi({
+            await updateAmenityApi(id, {
                 ...form,
                 operating_days: selectedDays
             });
 
-            router.push("/administration/unit-management/amenities");
+            router.push(`/administration/unit-management/amenities/${id}`);
 
         } catch (err) {
             console.error(err);
@@ -88,13 +121,21 @@ export default function CreateAmenityPage() {
         form.square_meters &&
         form.capacity;
 
+    if (loading) {
+        return (
+            <main className="min-h-screen flex items-center justify-center bg-[#F3F4F6]">
+                <Loader text="Loading amenity..." size="md" />
+            </main>
+        );
+    }
+
     return (
         <main className="min-h-screen bg-[#F3F4F6] pb-20">
             <NavigationHeader
                 showBack
-                backHref="/administration/unit-management"
-                title="Create New Amenity"
-                subtitle="Add a new amenity to the residence"
+                backHref={`/administration/unit-management/amenities/${id}`}
+                title="Edit Amenity"
+                subtitle="Update amenity information"
             />
 
             <div className="px-4 mt-4 pb-28">
@@ -126,8 +167,8 @@ export default function CreateAmenityPage() {
                             className="mt-1 w-full h-[40px] px-3 rounded-[10px] border border-[#D1D5DC] text-[14px] text-black placeholder:text-[#0A0A0A]/50] appearance-none">
                             <option value="">Select type</option>
                             <option value="6">Recreation</option>
-                            <option value="7">Social</option>
-                            <option value="8">Work</option>
+                            <option value="8">Social</option>
+                            <option value="7">Work</option>
                             <option value="9">Sports</option>
                         </select>
                         {errors.residence_type_id && (
@@ -141,17 +182,17 @@ export default function CreateAmenityPage() {
                         </label>
                         <select
                             name="building_id"
-                            value={form.building_id}
-                            onChange={handleChange}
+  value={form.building_id}
+  onChange={handleChange}
                             className="mt-1 w-full h-[40px] px-3 rounded-[10px] border border-[#D1D5DC] text-[14px] text-black placeholder:text-[#0A0A0A]/50] appearance-none">
                             <option value="">Select building</option>
-                            {buildings
-                                ?.filter((item) => item.building !== null)
-                                .map((item) => (
-                                    <option key={item.building.id} value={item.building.id}>
-                                        {item.building.name}
-                                    </option>
-                                ))}
+ {buildings
+    ?.filter((item) => item.building !== null)
+    .map((item) => (
+      <option key={item.building.id} value={item.building.id}>
+        {item.building.name}
+      </option>
+    ))}
                         </select>
                         {errors.building_id && (
                             <p className="text-red-500 text-[12px] mt-1">{errors.building_id}</p>
@@ -199,7 +240,6 @@ export default function CreateAmenityPage() {
 
                         <div className="mt-2 flex gap-2">
                             {days.map((day) => {
-
                                 const active = selectedDays.includes(day);
 
                                 return (
@@ -259,7 +299,7 @@ export default function CreateAmenityPage() {
                                 : "bg-[#99A1AF] cursor-not-allowed"
                             }`}
                     >
-                        {saving ? "Creating..." : "Create Amenity"}
+                        {saving ? "Updating..." : "Update Amenity"}
                     </button>
 
                 </div>

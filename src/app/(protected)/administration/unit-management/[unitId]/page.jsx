@@ -7,17 +7,19 @@ import FloatingActionButton from "@/components/FloatingButton";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { FaPlus } from "react-icons/fa";
-import { FiHome, FiUser, FiCheckCircle, FiChevronRight, FiPlus, FiFileText, FiDownload } from "react-icons/fi";
+import { FiHome, FiUser, FiCheckCircle, FiChevronRight, FiPlus, FiFileText, FiDownload, FiTrash2 } from "react-icons/fi";
 import { LuBuilding2, LuCar } from "react-icons/lu";
 import { RiDeleteBinLine } from "react-icons/ri";
-import { useParams } from "next/navigation";
-import { getUnitDetailsApi, getUnitFamilyMembersApi } from "@/lib/administrator";
+import { useParams, useRouter } from "next/navigation";
+import { assignOwnerToUnitApi, deleteUnitDocumentApi, deleteUnitFamilyMemberApi, getUnitDetailsApi, getUnitDocumentsApi, getUnitFamilyMembersApi, uploadUnitDocumentApi } from "@/lib/administrator";
 import Loader from "@/components/Loader";
 import { useSelector } from "react-redux";
+import ConfirmDialog from "@/components/ConfirmDialog";
 
 export default function UnitDetailsPage() {
     const params = useParams();
     const unitId = params.unitId;
+    const router = useRouter();
     const [unit, setUnit] = useState(null);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState("unit");
@@ -28,6 +30,16 @@ export default function UnitDetailsPage() {
     const buildings = useSelector((state) => state.lookup.buildings);
     const [familyMembers, setFamilyMembers] = useState([]);
     const [loadingFamily, setLoadingFamily] = useState(false);
+    const [ownerUpdatingId, setOwnerUpdatingId] = useState(null);
+    const [deleteDialog, setDeleteDialog] = useState({
+        open: false,
+        memberId: null
+    });
+    const [deleteDocDialog, setDeleteDocDialog] = useState({
+        open: false,
+        documentId: null
+    });
+    const [uploading, setUploading] = useState(false);
 
     const getBuildingName = (buildingId) => {
         return (
@@ -85,6 +97,96 @@ export default function UnitDetailsPage() {
             fetchFamilyMembers();
         }
     }, [activeTab, unitId]);
+
+
+    const handleDeleteMember = async () => {
+        try {
+            await deleteUnitFamilyMemberApi(unitId, deleteDialog.memberId);
+
+            setDeleteDialog({ open: false, memberId: null });
+
+            fetchFamilyMembers();
+
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const handleAssignOwner = async (member) => {
+        try {
+            setOwnerUpdatingId(member.id);
+
+            await assignOwnerToUnitApi({
+                unit_id: unitId,
+                member_id: member.id,
+                building_id: unit.building_id
+            });
+
+            await fetchFamilyMembers();
+
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setOwnerUpdatingId(null);
+        }
+    };
+
+    useEffect(() => {
+        if (activeTab === "documents" && unitId) {
+            fetchDocuments();
+        }
+    }, [activeTab, unitId]);
+
+    const fetchDocuments = async () => {
+        try {
+            const res = await getUnitDocumentsApi(unitId);
+            setDocuments(res.data?.data || []);
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const handleDeleteDocument = async () => {
+        try {
+            await deleteUnitDocumentApi(unitId, deleteDocDialog.documentId);
+
+            setDeleteDocDialog({
+                open: false,
+                documentId: null
+            });
+
+            fetchDocuments();
+
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const handleUploadDocument = async () => {
+        if (!docName || !file) return;
+
+        try {
+            setUploading(true);
+
+            const formData = new FormData();
+            formData.append("unit_id", unitId);
+            formData.append("document_name", docName);
+            formData.append("file", file);
+
+            await uploadUnitDocumentApi(formData);
+
+            await fetchDocuments();
+
+            setShowUploadModal(false);
+            setDocName("");
+            setFile(null);
+
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setUploading(false);
+        }
+    };
 
     if (loading) {
         return (
@@ -252,8 +354,13 @@ export default function UnitDetailsPage() {
                         >
                             <div
                                 key={member.id}
-                                className="bg-white rounded-[10px] shadow-sm overflow-hidden border border-[#eff0f1] hover:shadow-md transition"
+                                className="relative bg-white rounded-[10px] shadow-sm overflow-hidden border border-[#eff0f1] hover:shadow-md transition"
                             >
+                                {ownerUpdatingId === member.id && (
+                                    <div className="absolute inset-0 bg-white/80 backdrop-blur-[1px] flex items-center justify-center z-10">
+                                        <Loader text="Updating Owner..." size="md" />
+                                    </div>
+                                )}
                                 <div className="flex items-center justify-between px-4 py-3 bg-[#001F3F] text-white text-[14px]">
                                     <div className="flex items-center gap-2">
                                         <FiUser size={16} />
@@ -279,15 +386,48 @@ export default function UnitDetailsPage() {
                                     </div>
 
                                     <div className="pt-3 flex items-center justify-end gap-2">
-                                        <span className="text-[12px] text-[#6A7282]">Main Owner</span>
-                                        <div
-                                            className={`w-9 h-5 rounded-full p-[2px] transition ${member.is_owner ? "bg-[#001F3F]" : "bg-[#CBD5E1]"
-                                                }`}
-                                        >
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-[12px] text-[#6A7282]">Main Owner</span>
                                             <div
-                                                className={`w-4 h-4 bg-white rounded-full transition ${member.is_owner ? "translate-x-4" : ""
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    e.stopPropagation();
+
+                                                    if (ownerUpdatingId) return;
+
+                                                    handleAssignOwner(member);
+                                                }}
+                                                className={`w-9 h-5 rounded-full p-[2px] transition ${member.is_owner ? "bg-[#001F3F]" : "bg-[#CBD5E1]"
                                                     }`}
-                                            />
+                                            >
+                                                <div
+                                                    className={`w-4 h-4 bg-white rounded-full transition ${member.is_owner ? "translate-x-4" : ""
+                                                        }`}
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <button
+                                                disabled={member.is_owner}
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    e.stopPropagation();
+
+                                                    if (member.is_owner) return;
+
+                                                    setDeleteDialog({
+                                                        open: true,
+                                                        memberId: member.id
+                                                    });
+                                                }}
+                                                className={`w-full h-[36px] rounded-[10px] text-[14px] flex items-center justify-center gap-2
+                                                    ${member.is_owner
+                                                        ? "text-gray-400 cursor-not-allowed"
+                                                        : "text-[#E7000B] hover:text-red-500 cursor-pointer"
+                                                    }`}
+                                            ><FiTrash2 size={16} />
+                                                Delete Member
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -298,7 +438,9 @@ export default function UnitDetailsPage() {
                     <FloatingActionButton
                         label="Add New Member"
                         icon={FiPlus}
-                        onClick={() => console.log("Add new member")}
+                        onClick={() =>
+                            router.push(`/administration/unit-management/${unitId}/add-member`)
+                        }
                     />
                 </div>
             )}
@@ -331,10 +473,21 @@ export default function UnitDetailsPage() {
                                         </div>
 
                                         <div className="flex items-center gap-3">
-                                            <button className="text-[#001F3F] hover:scale-110 transition">
+                                            <a
+                                                href={`${doc.file_path}`}
+                                                target="_blank"
+                                                className="text-[#001F3F] hover:scale-110 transition"
+                                            >
                                                 <FiDownload size={16} />
-                                            </button>
-                                            <button className="text-[#E7000B] hover:scale-110 transition">
+                                            </a>
+                                            <button
+                                                onClick={() =>
+                                                    setDeleteDocDialog({
+                                                        open: true,
+                                                        documentId: doc.id
+                                                    })
+                                                }
+                                                className="text-[#E7000B] hover:scale-110 transition">
                                                 <RiDeleteBinLine size={16} />
                                             </button>
                                         </div>
@@ -407,25 +560,42 @@ export default function UnitDetailsPage() {
 
                             <button
                                 className="w-full h-[46px] rounded-[10px] bg-[#001F3F] text-white text-[14px] hover:bg-[#036] transition disabled:opacity-50"
-                                disabled={!docName || !file}
-                                onClick={() => {
-                                    const newDoc = {
-                                        id: Date.now(),
-                                        name: docName,
-                                    };
-
-                                    setDocuments((prev) => [newDoc, ...prev]);
-                                    setShowUploadModal(false);
-                                    setDocName("");
-                                    setFile(null);
-                                }}
+                                disabled={!docName || !file || uploading}
+                                onClick={handleUploadDocument}
                             >
-                                Upload
+                                {uploading ? (
+                                    "Uploading..."
+                                ) : (
+                                    "Upload"
+                                )}
                             </button>
                         </div>
                     </div>
                 </div>
             )}
+
+            <ConfirmDialog
+                open={deleteDialog.open}
+                title="Delete Member"
+                message="Are you sure you want to delete this family member? This action cannot be undone."
+                confirmText="Delete"
+                onConfirm={handleDeleteMember}
+                onCancel={() => setDeleteDialog({ open: false, memberId: null })}
+            />
+
+            <ConfirmDialog
+                open={deleteDocDialog.open}
+                title="Delete Document"
+                message="Are you sure you want to delete this document? This action cannot be undone."
+                confirmText="Delete"
+                onConfirm={handleDeleteDocument}
+                onCancel={() =>
+                    setDeleteDocDialog({
+                        open: false,
+                        documentId: null
+                    })
+                }
+            />
         </main>
     );
 }

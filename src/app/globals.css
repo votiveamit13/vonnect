@@ -18,3 +18,24 @@ body {
   font-family: var(--font-arimo), Arial, Helvetica, sans-serif;
 }
 
+.no-scrollbar::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+.no-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.no-scrollbar::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+.no-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.no-scrollbar {
+  scrollbar-width: thin;
+}

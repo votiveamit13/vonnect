@@ -1,8 +1,8 @@
 "use client";
 
 import NavigationHeader from "@/components/common/NavigationHeader";
-import { getUnitFamilyMemberApi } from "@/lib/administrator";
-import { useParams } from "next/navigation";
+import { getUnitFamilyMemberApi, updateUnitFamilyMemberApi } from "@/lib/administrator";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import {
   FiUser,
@@ -21,16 +21,22 @@ import { MdOutlineShield } from "react-icons/md";
 
 export default function EditMemberPage() {
   const avatarRef = useRef(null);
+  const [avatarFile, setAvatarFile] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState(null);
   const params = useParams();
   const memberId = params.memberId;
   const unitId = params.unitId;
+  const router = useRouter();
+  const [errors, setErrors] = useState({});
+  const [saving, setSaving] = useState(false);
 
   const handleAvatarChange = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setAvatarPreview(URL.createObjectURL(file));
-  };
+  const file = e.target.files?.[0];
+  if (!file) return;
+
+  setAvatarFile(file);
+  setAvatarPreview(URL.createObjectURL(file));
+};
 
   const driverRef = useRef(null);
   const [driverLicenseDoc, setDriverLicenseDoc] = useState(null);
@@ -114,7 +120,9 @@ export default function EditMemberPage() {
         const data = res.data?.data;
 
         if (!data) return;
-
+if (data.profile_picture) {
+  setAvatarPreview(`${process.env.NEXT_PUBLIC_UPLOAD_URL}${data.profile_picture}`);
+}
         setForm({
           full_name: data.full_name || "",
           relationship: data.relationship || "",
@@ -164,15 +172,123 @@ export default function EditMemberPage() {
       ...prev,
       [field]: value,
     }));
+
+    setErrors((prev) => ({
+      ...prev,
+      [field]: "",
+    }));
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!form.full_name.trim())
+      newErrors.full_name = "Full name is required";
+
+    if (!form.relationship.trim())
+      newErrors.relationship = "Relationship is required";
+
+    if (!form.date_of_birth)
+      newErrors.date_of_birth = "Date of birth is required";
+
+    if (!form.document_type)
+      newErrors.document_type = "Document type is required";
+
+    if (!form.document_number.trim())
+      newErrors.document_number = "Document number is required";
+
+    if (!form.residence_address.trim())
+      newErrors.residence_address = "Residence address is required";
+
+    if (!form.email.trim())
+      newErrors.email = "Email is required";
+
+    if (!form.phone.trim())
+      newErrors.phone = "Phone is required";
+
+    if (!form.emergency_name.trim())
+      newErrors.emergency_name = "Emergency contact name is required";
+
+    if (!form.emergency_phone.trim())
+      newErrors.emergency_phone = "Emergency phone is required";
+
+    if (!form.emergency_relation.trim())
+      newErrors.emergency_relation = "Emergency relationship is required";
+
+    setErrors(newErrors);
+
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSave = async () => {
+    if (!validateForm()) return;
+    try {
+      setSaving(true);
+      const formData = new FormData();
+
+      formData.append("full_name", form.full_name);
+      formData.append("relationship", form.relationship);
+      formData.append("marital_status", form.marital_status);
+      formData.append("date_of_birth", form.date_of_birth);
+      formData.append("residence_address", form.residence_address);
+      formData.append("email", form.email);
+      formData.append("phone", form.phone);
+      formData.append("document_type", form.document_type);
+      formData.append("document_number", form.document_number);
+      formData.append("driver_license_number", form.driver_license_number);
+      formData.append("driver_license_expiry", form.driver_license_expiry);
+
+      formData.append(
+        "emergency_contact",
+        JSON.stringify({
+          name: form.emergency_name,
+          phone: form.emergency_phone,
+          relation: form.emergency_relation,
+        })
+      );
+
+      if (avatarFile) {
+  formData.append("profile_picture", avatarFile);
+}
+
+      if (driverLicenseDoc && typeof driverLicenseDoc !== "string") {
+        formData.append("driver_license_document", driverLicenseDoc);
+      }
+
+      const vehiclePayload = vehicles.map((v) => ({
+        make: v.make,
+        model: v.model,
+        year: v.year,
+        plate_number: v.plate,
+        color: v.color,
+        insurance_company: v.insurance,
+        insurance_expiration: v.expiry,
+      }));
+
+      formData.append("vehicles", JSON.stringify(vehiclePayload));
+
+      vehicles.forEach((v) => {
+        if (v.doc && typeof v.doc !== "string") {
+          formData.append("insurance_documents", v.doc);
+        }
+      });
+
+      await updateUnitFamilyMemberApi(memberId, formData);
+
+      router.push(`/administration/unit-management/${unitId}/member/${memberId}`);
+
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
     <main className="min-h-screen bg-[#F5F7FA] pb-10">
       <NavigationHeader
         showBack
-        backHref="/administration/unit-management/101/member/1"
+        backHref={`/administration/unit-management/${unitId}/member/${memberId}`}
         title="Edit Information"
-        subtitle="Carlos Rodriguez"
+        subtitle={form.full_name}
       />
 
       <div className="flex justify-center mt-5 pt-6">
@@ -218,6 +334,9 @@ export default function EditMemberPage() {
                 value={form.full_name}
                 onChange={(e) => handleChange("full_name", e.target.value)}
                 className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black placeholder:text-[#0A0A0A]/50" />
+              {errors.full_name && (
+                <p className="text-red-500 text-[12px] mt-1">{errors.full_name}</p>
+              )}
             </div>
 
             <div>
@@ -228,6 +347,9 @@ export default function EditMemberPage() {
                 value={form.relationship}
                 onChange={(e) => handleChange("relationship", e.target.value)}
                 className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black placeholder:text-[#0A0A0A]/50" />
+              {errors.relationship && (
+                <p className="text-red-500 text-[12px] mt-1">{errors.relationship}</p>
+              )}
             </div>
 
             <div>
@@ -255,6 +377,9 @@ export default function EditMemberPage() {
                 value={form.date_of_birth}
                 onChange={(e) => handleChange("date_of_birth", e.target.value)}
                 className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black placeholder:text-[#0A0A0A]/50" />
+              {errors.date_of_birth && (
+                <p className="text-red-500 text-[12px] mt-1">{errors.date_of_birth}</p>
+              )}
             </div>
           </div>
         </div>
@@ -269,20 +394,32 @@ export default function EditMemberPage() {
               <label className="block text-[12px] text-[#364153] mb-1">
                 Type of Document <span className="text-[#E7000B]">*</span>
               </label>
-              <select className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black bg-white outline-none focus:border-[#001F3F] appearance-none">
+              <select
+                value={form.document_type || ""}
+                onChange={(e) => handleChange("document_type", e.target.value)}
+                className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black bg-white outline-none focus:border-[#001F3F] appearance-none">
                 <option value="">Select type</option>
                 <option value="National ID">National ID</option>
                 <option value="Passport">Passport</option>
                 <option value="Driver License">Driver License</option>
                 <option value="Widowed">Widowed</option>
               </select>
+              {errors.document_type && (
+                <p className="text-red-500 text-[12px] mt-1">{errors.document_type}</p>
+              )}
             </div>
 
             <div>
               <label className="block text-[12px] text-[#364153] mb-1">
                 Document Number <span className="text-[#E7000B]">*</span>
               </label>
-              <input className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black placeholder:text-[#0A0A0A]/50" />
+              <input
+                value={form.document_number}
+                onChange={(e) => handleChange("document_number", e.target.value)}
+                className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black placeholder:text-[#0A0A0A]/50" />
+              {errors.document_number && (
+                <p className="text-red-500 text-[12px] mt-1">{errors.document_number}</p>
+              )}
             </div>
           </div>
         </div>
@@ -301,6 +438,9 @@ export default function EditMemberPage() {
                 value={form.residence_address}
                 onChange={(e) => handleChange("residence_address", e.target.value)}
                 className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black placeholder:text-[#0A0A0A]/50" />
+              {errors.residence_address && (
+                <p className="text-red-500 text-[12px] mt-1">{errors.residence_address}</p>
+              )}
             </div>
 
             <div>
@@ -312,6 +452,9 @@ export default function EditMemberPage() {
                 value={form.email}
                 onChange={(e) => handleChange("email", e.target.value)}
                 className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black placeholder:text-[#0A0A0A]/50" />
+              {errors.email && (
+                <p className="text-red-500 text-[12px] mt-1">{errors.email}</p>
+              )}
             </div>
 
             <div>
@@ -323,6 +466,9 @@ export default function EditMemberPage() {
                 value={form.phone}
                 onChange={(e) => handleChange("phone", e.target.value)}
                 className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black placeholder:text-[#0A0A0A]/50" />
+              {errors.phone && (
+                <p className="text-red-500 text-[12px] mt-1">{errors.phone}</p>
+              )}
             </div>
           </div>
         </div>
@@ -341,20 +487,35 @@ export default function EditMemberPage() {
                 value={form.emergency_name}
                 onChange={(e) => handleChange("emergency_name", e.target.value)}
                 className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black placeholder:text-[#0A0A0A]/50" />
+              {errors.name && (
+                <p className="text-red-500 text-[12px] mt-1">{errors.name}</p>
+              )}
             </div>
 
             <div>
               <label className="block text-[12px] text-[#364153] mb-1">
                 Phone <span className="text-[#E7000B]">*</span>
               </label>
-              <input className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black placeholder:text-[#0A0A0A]/50" />
+              <input
+                value={form.emergency_phone}
+                onChange={(e) => handleChange("emergency_phone", e.target.value)}
+                className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black placeholder:text-[#0A0A0A]/50" />
+              {errors.emergency_phone && (
+                <p className="text-red-500 text-[12px] mt-1">{errors.emergency_phone}</p>
+              )}
             </div>
 
             <div>
               <label className="block text-[12px] text-[#364153] mb-1">
                 Relationship <span className="text-[#E7000B]">*</span>
               </label>
-              <input className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black placeholder:text-[#0A0A0A]/50" />
+              <input
+                value={form.emergency_relation}
+                onChange={(e) => handleChange("emergency_relation", e.target.value)}
+                className="bg-white w-full h-[40px] px-3 rounded-[10px] border border-[#E5E7EB] text-[14px] text-black placeholder:text-[#0A0A0A]/50" />
+              {errors.emergency_relation && (
+                <p className="text-red-500 text-[12px] mt-1">{errors.emergency_relation}</p>
+              )}
             </div>
           </div>
         </div>
@@ -570,14 +731,19 @@ export default function EditMemberPage() {
         </div>
 
         <div className="pt-6 space-y-3">
-          <button className="w-full h-[36px] rounded-[10px] bg-[#001F3F] text-white text-[14px] hover:bg-[#003d7a]">
-            Save
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className={`w-full h-[36px] rounded-[10px] text-white text-[14px]
+  ${saving ? "bg-gray-400 cursor-not-allowed" : "bg-[#001F3F] hover:bg-[#003d7a]"}`}
+          >
+            {saving ? "Saving..." : "Save"}
           </button>
 
-          <button className="w-full h-[36px] rounded-[10px] border border-red-200 text-[#E7000B] text-[14px] flex items-center justify-center gap-2 hover:bg-red-50">
+          {/* <button className="w-full h-[36px] rounded-[10px] border border-red-200 text-[#E7000B] text-[14px] flex items-center justify-center gap-2 hover:bg-red-50">
             <FiTrash2 size={16} />
             Delete Member
-          </button>
+          </button> */}
         </div>
 
       </div>
